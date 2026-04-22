@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>خانه هوشمند | داشبورد</title>
+    <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
+    <style>
+        /* فونت وزیرمتن برای فارسی */
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background-color: var(--tg-theme-bg-color, #f5f5f5);
+            color: var(--tg-theme-text-color, #222);
+            padding: 16px 12px 24px;
+            min-height: 100vh;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* هدر با پروفایل کاربر */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 8px 0;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--tg-theme-button-color, #007aff);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .user-greeting {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .home-title {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* کارت‌های ابزارها */
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            border-radius: 24px;
+            padding: 18px 20px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(127,127,127,0.1);
+            transition: all 0.2s;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: var(--tg-theme-hint-color, #ccc);
+            color: white;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: #34c759;
+        }
+
+        /* اسلایدر دما */
+        .temp-control {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .temp-value {
+            font-size: 2.2rem;
+            font-weight: 300;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .temp-unit {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .slider-container {
+            flex: 1;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--tg-theme-hint-color, #ccc);
+            border-radius: 10px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--tg-theme-button-color, #007aff);
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        /* دکمه‌های کنترل */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-label {
+            flex: 1;
+        }
+
+        .toggle-btn {
+            width: 60px;
+            height: 32px;
+            background: #ccc;
+            border-radius: 32px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .toggle-btn.active {
+            background: #34c759;
+        }
+
+        .toggle-btn::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            right: 3px;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-btn.active::after {
+            transform: translateX(28px);
+        }
+
+        .lock-btn {
+            background: var(--tg-theme-button-color, #007aff);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 18px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .lock-btn:active {
+            opacity: 0.8;
+            transform: scale(0.98);
+        }
+
+        .lock-btn.locked {
+            background: #ff3b30;
+        }
+
+        /* نکته پاورقی */
+        .footer-note {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        .loading-placeholder {
+            opacity: 0.6;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* ریسپانسیو */
+        @media (max-width: 400px) {
+            .temp-value {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header" id="userHeader">
+        <div class="avatar" id="userAvatar">👤</div>
+        <div class="user-greeting">
+            <div class="user-name" id="userNameDisplay">...</div>
+            <div class="home-title">🏠 خانه هوشمند من</div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <!-- کارت روشنایی -->
+        <div class="card" id="lightCard">
+            <div class="card-header">
+                <h3>💡 روشنایی</h3>
+                <span class="status-badge" id="lightStatus">خاموش</span>
+            </div>
+            <div class="toggle-switch">
+                <span class="toggle-label">لامپ اصلی</span>
+                <div class="toggle-btn" id="lightToggle"></div>
+            </div>
+        </div>
+
+        <!-- کارت دما (ترموستات) -->
+        <div class="card">
+            <div class="card-header">
+                <h3>🌡️ دما</h3>
+                <span class="status-badge" id="tempStatus">خنک</span>
+            </div>
+            <div class="temp-control">
+                <div class="temp-value">
+                    <span id="tempDisplay">22</span><span class="temp-unit">°C</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="tempSlider" min="16" max="30" value="22" step="0.5">
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.8rem; opacity: 0.6;">
+                <span>❄️ ۱۶</span>
+                <span>🔥 ۳۰</span>
+            </div>
+        </div>
+
+        <!-- کارت قفل هوشمند -->
+        <div class="card">
+            <div class="card-header">
+                <h3>🔐 قفل در ورودی</h3>
+                <span class="status-badge" id="lockStatusBadge">قفل</span>
+            </div>
+            <button class="lock-btn" id="lockButton">
+                <span>🔒</span> قفل کردن در
+            </button>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        وضعیت‌ها در حافظه محلی ذخیره می‌شوند • نسخه ۱.۰
+    </div>
+
+    <script>
+        (function(){
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+
+            // تنظیم رنگ هدر و پس‌زمینه
+            if (tg.setHeaderColor) tg.setHeaderColor('secondary_bg_color');
+            if (tg.setBackgroundColor) tg.setBackgroundColor('bg_color');
+
+            // ---------- اطلاعات کاربر ----------
+            const user = tg.initDataUnsafe?.user;
+            const avatarEl = document.getElementById('userAvatar');
+            const userNameDisplay = document.getElementById('userNameDisplay');
+
+            if (user) {
+                const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || 'کاربر';
+                userNameDisplay.textContent = fullName + (user.is_premium ? ' ⭐' : '');
+                if (user.photo_url) {
+                    avatarEl.style.backgroundImage = `url(${user.photo_url})`;
+                    avatarEl.style.color = 'transparent';
+                    avatarEl.textContent = '';
+                } else {
+                    avatarEl.textContent = user.first_name?.charAt(0).toUpperCase() || '👤';
+                }
+            } else {
+                userNameDisplay.textContent = 'مهمان';
+                avatarEl.textContent = '🏠';
+            }
+
+            // ---------- وضعیت‌های دستگاه‌ها ----------
+            let lightOn = false;      // وضعیت لامپ
+            let currentTemp = 22.0;    // دمای تنظیم شده
+            let doorLocked = true;     // قفل در
+
+            // المان‌های DOM
+            const lightToggle = document.getElementById('lightToggle');
+            const lightStatus = document.getElementById('lightStatus');
+            const tempSlider = document.getElementById('tempSlider');
+            const tempDisplay = document.getElementById('tempDisplay');
+            const tempStatus = document.getElementById('tempStatus');
+            const lockButton = document.getElementById('lockButton');
+            const lockStatusBadge = document.getElementById('lockStatusBadge');
+
+            // ---------- توابع کمکی برای ذخیره‌سازی ----------
+            const storage = tg.DeviceStorage; // استفاده از DeviceStorage (Bot API 9.0+)
+
+            async function loadSettings() {
+                if (!storage) {
+                    console.warn('DeviceStorage پشتیبانی نمی‌شود، از مقادیر پیش‌فرض استفاده می‌کنیم.');
+                    return;
+                }
+                try {
+                    const lightVal = await new Promise((res) => storage.getItem('light', (e, v) => res(v)));
+                    const tempVal = await new Promise((res) => storage.getItem('temp', (e, v) => res(v)));
+                    const lockVal = await new Promise((res) => storage.getItem('lock', (e, v) => res(v)));
+                    
+                    if (lightVal !== null && lightVal !== undefined) lightOn = lightVal === 'true';
+                    if (tempVal !== null && tempVal !== undefined) currentTemp = parseFloat(tempVal);
+                    if (lockVal !== null && lockVal !== undefined) doorLocked = lockVal === 'true';
+                    
+                    updateUI();
+                } catch (e) {
+                    console.error('خطا در بارگذاری تنظیمات:', e);
+                }
+            }
+
+            async function saveSettings() {
+                if (!storage) return;
+                try {
+                    storage.setItem('light', String(lightOn));
+                    storage.setItem('temp', String(currentTemp));
+                    storage.setItem('lock', String(doorLocked));
+                } catch (e) {
+                    console.error('خطا در ذخیره‌سازی:', e);
+                }
+            }
+
+            // ---------- به‌روزرسانی رابط کاربری ----------
+            function updateUI() {
+                // لامپ
+                if (lightOn) {
+                    lightToggle.classList.add('active');
+                    lightStatus.textContent = 'روشن';
+                    lightStatus.classList.add('active');
+                } else {
+                    lightToggle.classList.remove('active');
+                    lightStatus.textContent = 'خاموش';
+                    lightStatus.classList.remove('active');
+                }
+
+                // دما
+                tempDisplay.textContent = currentTemp.toFixed(1);
+                tempSlider.value = currentTemp;
+                if (currentTemp < 20) tempStatus.textContent = 'خنک ❄️';
+                else if (currentTemp > 26) tempStatus.textContent = 'گرم 🔥';
+                else tempStatus.textContent = 'مطبوع ✨';
+
+                // قفل
+                if (doorLocked) {
+                    lockButton.innerHTML = '<span>🔒</span> قفل کردن در';
+                    lockButton.classList.add('locked');
+                    lockStatusBadge.textContent = 'قفل';
+                } else {
+                    lockButton.innerHTML = '<span>🔓</span> باز کردن در';
+                    lockButton.classList.remove('locked');
+                    lockStatusBadge.textContent = 'باز';
+                }
+            }
+
+            // ---------- رویدادها ----------
+            lightToggle.addEventListener('click', () => {
+                lightOn = !lightOn;
+                updateUI();
+                saveSettings();
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                
+                // اینجا می‌تونی یه درخواست به API واقعی بفرستی
+                console.log('لامپ:', lightOn ? 'روشن' : 'خاموش');
+            });
+
+            tempSlider.addEventListener('input', (e) => {
+                currentTemp = parseFloat(e.target.value);
+                tempDisplay.textContent = currentTemp.toFixed(1);
+                // وضعیت دمایی رو بلافاصله آپدیت کن
+                if (currentTemp < 20) tempStatus.textContent = 'خنک ❄️';
+                else if (currentTemp > 26) tempStatus.textContent = 'گرم 🔥';
+                else tempStatus.textContent = 'مطبوع ✨';
+            });
+
+            tempSlider.addEventListener('change', () => {
+                // فقط وقتی رها شد ذخیره کن
+                saveSettings();
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('soft');
+                console.log('دمای تنظیم شده:', currentTemp);
+                // ارسال به API فرضی
+            });
+
+            lockButton.addEventListener('click', () => {
+                doorLocked = !doorLocked;
+                updateUI();
+                saveSettings();
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(doorLocked ? 'warning' : 'success');
+                console.log('قفل:', doorLocked ? 'قفل شد' : 'باز شد');
+            });
+
+            // ---------- بارگذاری اولیه ----------
+            loadSettings().then(() => {
+                updateUI();
+            }).catch(() => updateUI());
+
+            // گوش دادن به تغییر تم
+            tg.onEvent('themeChanged', () => {
+                // متغیرهای CSS خودکار آپدیت می‌شن
+            });
+
+            // (اختیاری) دکمه برگشت
+            if (tg.BackButton) {
+                tg.BackButton.show();
+                tg.BackButton.onClick(() => {
+                    tg.close();
+                });
+            }
+
+            console.log('🏠 داشبورد خانه هوشمند بارگذاری شد');
+        })();
+    </script>
+</body>
+</html>
