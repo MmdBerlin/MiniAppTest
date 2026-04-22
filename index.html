@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="fa" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Smart Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --tg-bg: #f5f6fa;
+    --tg-bg-secondary: #ffffff;
+    --tg-text: #1a1a2e;
+    --tg-text-secondary: #8e8ea0;
+    --tg-hint: #b0b0c0;
+    --tg-accent: #4facfe;
+    --tg-destructive: #e74c3c;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--tg-bg);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px 18px;
+    flex-shrink: 0;
+  }
+
+  .greeting h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--tg-text);
+    line-height: 1.2;
+  }
+
+  .greeting p {
+    font-size: 13px;
+    color: var(--tg-text-secondary);
+    margin-top: 3px;
+    font-weight: 400;
+  }
+
+  .avatar-wrapper {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--tg-bg-secondary);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    background: var(--tg-destructive);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--tg-bg);
+  }
+
+  .cards-container {
+    flex: 1;
+    padding: 0 16px 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .card {
+    border-radius: 20px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.6s ease;
+    min-height: 0;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.75;
+  }
+
+  .card-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    transition: all 0.4s ease;
+  }
+
+  .card-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .card-value {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .card-sub {
+    font-size: 11px;
+    font-weight: 400;
+    opacity: 0.65;
+    margin-top: 3px;
+  }
+
+  .card-temp {
+    color: #fff;
+  }
+
+  .card-temp .card-icon {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+  }
+
+  .card-temp .card-label { color: rgba(255,255,255,0.8); }
+
+  .temp-display {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+    margin: 2px 0;
+  }
+
+  .temp-number {
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    transition: transform 0.15s ease, text-shadow 0.6s ease;
+    min-width: 46px;
+    text-align: center;
+  }
+
+  .temp-number.bump-up { animation: bumpUp 0.2s ease; }
+  .temp-number.bump-down { animation: bumpDown 0.2s ease; }
+
+  @keyframes bumpUp {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(-3px); }
+    100% { transform: translateY(0); }
+  }
+
+  @keyframes bumpDown {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(3px); }
+    100% { transform: translateY(0); }
+  }
+
+  .temp-unit {
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    margin-top: 5px;
+  }
+
+  .temp-feel {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    margin-top: 1px;
+  }
+
+  .temp-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    gap: 8px;
+  }
+
+  .temp-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+    font-size: 19px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .temp-btn:active {
+    transform: scale(0.88);
+    background: rgba(255,255,255,0.45);
+  }
+
+  .temp-btn:disabled {
+    opacity: 0.25;
+    cursor: default;
+    transform: none;
+  }
+
+  .temp-slider-wrapper { flex: 1; }
+
+  .temp-slider-track {
+    height: 5px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 3px;
+    position: relative;
+    overflow: visible;
+  }
+
+  .temp-slider-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.65);
+    transition: width 0.3s ease;
+    position: relative;
+  }
+
+  .temp-slider-fill::after {
+    content: '';
+    position: absolute;
+    right: -7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 13px;
+    height: 13px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.18);
+  }
+
+  .temp-range-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+  }
+
+  .temp-range-labels span {
+    font-size: 8px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+  }
+
+  .card-light {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    color: #5a3e00;
+    transition: background 0.5s ease, color 0.5s ease;
+  }
+
+  .card-light.off {
+    background: linear-gradient(135deg, #2d2d3a 0%, #1a1a2e 100%);
+    color: #6b6b80;
+  }
+
+  .card-light .card-icon {
+    background: rgba(255,255,255,0.32);
+    color: #5a3e00;
+    transition: all 0.5s ease;
+  }
+
+  .card-light.off .card-icon {
+    background: rgba(255,255,255,0.07);
+    color: #4a4a5a;
+  }
+
+  .card-light .card-label { color: rgba(90,62,0,0.72); transition: color 0.5s ease; }
+  .card-light.off .card-label { color: rgba(107,107,128,0.65); }
+  .card-light .card-sub { color: rgba(90,62,0,0.6); transition: color 0.5s ease; }
+  .card-light.off .card-sub { color: rgba(107,107,128,0.45); }
+  .card-light .toggle-label { color: #5a3e00; transition: color 0.5s ease; }
+  .card-light.off .toggle-label { color: #4a4a5a; }
+
+  .card-light .toggle { background: rgba(90,62,0,0.22); }
+  .card-light .toggle.active { background: rgba(255,255,255,0.88); }
+  .card-light .toggle.active .toggle-knob { background: #f6d365; }
+
+  .lamp-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 6px 0;
+    position: relative;
+  }
+
+  .lamp-glow {
+    width: 56px;
+    height: 28px;
+    background: radial-gradient(ellipse at center, rgba(255,220,100,0.55) 0%, transparent 70%);
+    border-radius: 50%;
+    position: absolute;
+    bottom: 16px;
+    transition: opacity 0.5s ease;
+  }
+
+  .card-light.off .lamp-glow { opacity: 0; }
+
+  .lamp-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .lamp-bulb {
+    width: 26px;
+    height: 26px;
+    border-radius: 50% 50% 40% 40%;
+    background: radial-gradient(circle at 40% 35%, #fff9db, #fbbf24);
+    box-shadow: 0 0 18px rgba(251,191,36,0.45), 0 0 36px rgba(251,191,36,0.18);
+    transition: all 0.5s ease;
+  }
+
+  .card-light.off .lamp-bulb {
+    background: radial-gradient(circle at 40% 35%, #4a4a5a, #3a3a48);
+    box-shadow: none;
+  }
+
+  .lamp-neck {
+    width: 7px;
+    height: 9px;
+    background: #c8a44e;
+    border-radius: 0 0 2px 2px;
+    transition: background 0.5s ease;
+  }
+
+  .card-light.off .lamp-neck { background: #3a3a48; }
+
+  .lamp-base {
+    width: 30px;
+    height: 5px;
+    background: #c8a44e;
+    border-radius: 0 0 5px 5px;
+    transition: background 0.5s ease;
+  }
+
+  .card-light.off .lamp-base { background: #3a3a48; }
+
+  .card-fridge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+  }
+
+  .card-fridge .card-icon {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+  }
+
+  .card-fridge .card-label { color: rgba(255,255,255,0.75); }
+
+  .fridge-visual {
+    display: flex;
+    gap: 7px;
+    align-items: stretch;
+    margin: 5px 0;
+    height: 72px;
+  }
+
+  .fridge-compartment {
+    flex: 1;
+    border-radius: 11px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .fridge-compartment.freezer {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .fridge-compartment.fridge-section {
+    background: rgba(255,255,255,0.13);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .fridge-comp-label {
+    font-size: 7px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 1px;
+  }
+
+  .fridge-comp-temp {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .fridge-comp-temp span {
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0.65;
+  }
+
+  .fridge-compartment::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    width: 5px;
+    height: 5px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+  }
+
+  .fridge-compartment::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    width: 3px;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+
+  .fridge-divider {
+    width: 2px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 1px;
+    align-self: stretch;
+    margin: 3px 0;
+  }
+
+  .fridge-status-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: auto;
+  }
+
+  .fridge-status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.35); }
+    50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(74,222,128,0); }
+  }
+
+  .fridge-status-text {
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 500;
+  }
+
+  .fridge-door-badge {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+    background: rgba(255,255,255,0.07);
+    padding: 2px 7px;
+    border-radius: 7px;
+  }
+
+  .fridge-door-badge svg {
+    width: 9px;
+    height: 9px;
+    opacity: 0.65;
+  }
+
+  .card-humidity {
+    background: var(--tg-bg-secondary);
+    color: var(--tg-text);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+  }
+
+  .card-humidity .card-icon {
+    background: #e8f4f8;
+    color: var(--tg-accent);
+  }
+
+  .card-humidity .card-label { color: var(--tg-text-secondary); }
+
+  .humidity-ring {
+    width: 72px;
+    height: 72px;
+    margin: auto 0;
+    position: relative;
+  }
+
+  .humidity-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .humidity-ring-bg {
+    fill: none;
+    stroke: #e8f4f8;
+    stroke-width: 5.5;
+  }
+
+  .humidity-ring-fill {
+    fill: none;
+    stroke: var(--tg-accent);
+    stroke-width: 5.5;
+    stroke-linecap: round;
+    stroke-dasharray: 207;
+    stroke-dashoffset: 145;
+    transition: stroke-dashoffset 1s ease;
+  }
+
+  .humidity-ring-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--tg-text);
+  }
+
+  .humidity-label {
+    text-align: center;
+    font-size: 11px;
+    color: var(--tg-text-secondary);
+    margin-top: 3px;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  .toggle-label {
+    font-size: 12px;
+    font-weight: 600;
+    transition: color 0.4s ease;
+  }
+
+  .toggle {
+    width: 42px;
+    height: 23px;
+    background: rgba(255,255,255,0.32);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.25s;
+    flex-shrink: 0;
+  }
+
+  .toggle.active { background: rgba(255,255,255,0.92); }
+
+  .toggle-knob {
+    width: 19px;
+    height: 19px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.25s, background 0.25s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.14);
+  }
+
+  .toggle.active .toggle-knob { transform: translateX(19px); }
+
+  .card-temp::after {
+    content: '';
+    position: absolute;
+    top: -18px;
+    right: -18px;
+    width: 70px;
+    height: 70px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .card-light::before {
+    content: '';
+    position: absolute;
+    bottom: -14px;
+    right: -14px;
+    width: 55px;
+    height: 55px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .card-fridge::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 48px;
+    height: 48px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: calc(var(--safe-bottom) + 16px);
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: rgba(26,26,46,0.88);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 100;
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="greeting">
+      <h1 id="userName">Hi, Julia</h1>
+      <p>Welcome to your smart home</p>
+    </div>
+    <div class="avatar-wrapper">
+      <img class="avatar" id="userAvatar" src="https://picsum.photos/seed/julia-avatar/96/96.jpg" alt="Avatar">
+      <div class="notification-badge" id="notifBadge" style="display:none;">0</div>
+    </div>
+  </div>
+
+  <div class="cards-container">
+
+    <div class="card card-temp" id="tempCard">
+      <div>
+        <div class="card-icon"><i data-lucide="thermometer"></i></div>
+        <div class="card-label">Home Temperature</div>
+      </div>
+      <div>
+        <div class="temp-display">
+          <span class="temp-number" id="tempNumber">24</span>
+          <span class="temp-unit">°C</span>
+        </div>
+        <div class="temp-feel" id="tempFeel">😊 Comfortable</div>
+      </div>
+      <div class="temp-controls">
+        <button class="temp-btn" id="tempDown" onclick="changeTemp(-1)">−</button>
+        <div class="temp-slider-wrapper">
+          <div class="temp-slider-track">
+            <div class="temp-slider-fill" id="tempSliderFill" style="width: 56%;"></div>
+          </div>
+          <div class="temp-range-labels"><span>16°</span><span>30°</span></div>
+        </div>
+        <button class="temp-btn" id="tempUp" onclick="changeTemp(1)">+</button>
+      </div>
+    </div>
+
+    <div class="card card-light" id="lightCard">
+      <div>
+        <div class="card-icon"><i data-lucide="lamp"></i></div>
+        <div class="card-label">Living Room</div>
+      </div>
+      <div class="lamp-visual">
+        <div class="lamp-glow"></div>
+        <div class="lamp-body">
+          <div class="lamp-bulb"></div>
+          <div class="lamp-neck"></div>
+          <div class="lamp-base"></div>
+        </div>
+      </div>
+      <div class="card-sub" id="lightSub">Brightness 80%</div>
+      <div class="toggle-row">
+        <span class="toggle-label" id="lightLabel">On</span>
+        <div class="toggle active" id="lightToggle" onclick="toggleLight()">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-fridge">
+      <div>
+        <div class="card-icon"><i data-lucide="refrigerator"></i></div>
+        <div class="card-label">Refrigerator</div>
+      </div>
+      <div class="fridge-visual">
+        <div class="fridge-compartment freezer">
+          <div class="fridge-comp-label">Freezer</div>
+          <div class="fridge-comp-temp">-18<span>°C</span></div>
+        </div>
+        <div class="fridge-divider"></div>
+        <div class="fridge-compartment fridge-section">
+          <div class="fridge-comp-label">Fridge</div>
+          <div class="fridge-comp-temp">4<span>°C</span></div>
+        </div>
+      </div>
+      <div class="fridge-status-row">
+        <div class="fridge-status-dot"></div>
+        <span class="fridge-status-text">Cooling</span>
+        <div class="fridge-door-badge"><i data-lucide="lock"></i>Closed</div>
+      </div>
+    </div>
+
+    <div class="card card-humidity">
+      <div>
+        <div class="card-icon"><i data-lucide="droplets"></i></div>
+        <div class="card-label">Home Humidity</div>
+      </div>
+      <div class="humidity-ring">
+        <svg viewBox="0 0 80 80">
+          <circle class="humidity-ring-bg" cx="40" cy="40" r="36"/>
+          <circle class="humidity-ring-fill" cx="40" cy="40" r="36"/>
+        </svg>
+        <div class="humidity-ring-text">30%</div>
+      </div>
+      <div class="humidity-label">Low · Consider humidifier</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  lucide.createIcons();
+
+  var tg = window.Telegram && window.Telegram.WebApp;
+
+  if (tg) {
+    tg.expand();
+    tg.ready();
+    if (tg.themeParams) {
+      var tp = tg.themeParams;
+      if (tp.bg_color) { document.documentElement.style.setProperty('--tg-bg', tp.bg_color); document.body.style.backgroundColor = tp.bg_color; }
+      if (tp.secondary_bg_color) document.documentElement.style.setProperty('--tg-bg-secondary', tp.secondary_bg_color);
+      if (tp.text_color) document.documentElement.style.setProperty('--tg-text', tp.text_color);
+      if (tp.hint_color) document.documentElement.style.setProperty('--tg-hint', tp.hint_color);
+      if (tp.button_color) document.documentElement.style.setProperty('--tg-accent', tp.button_color);
+      if (tp.destructive_text_color) document.documentElement.style.setProperty('--tg-destructive', tp.destructive_text_color);
+    }
+    if (tg.setHeaderColor) tg.setHeaderColor('secondary_bg_color');
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      var u = tg.initDataUnsafe.user;
+      var fn = u.first_name || 'User';
+      var ln = u.last_name || '';
+      document.getElementById('userName').textContent = 'Hi, ' + fn + (ln ? ' ' + ln : '');
+      if (u.photo_url) document.getElementById('userAvatar').src = u.photo_url;
+    }
+    tg.onEvent('themeChanged', function() {
+      if (tg.themeParams) {
+        var tp2 = tg.themeParams;
+        if (tp2.bg_color) { document.documentElement.style.setProperty('--tg-bg', tp2.bg_color); document.body.style.backgroundColor = tp2.bg_color; }
+        if (tp2.secondary_bg_color) document.documentElement.style.setProperty('--tg-bg-secondary', tp2.secondary_bg_color);
+        if (tp2.text_color) document.documentElement.style.setProperty('--tg-text', tp2.text_color);
+        if (tp2.hint_color) document.documentElement.style.setProperty('--tg-hint', tp2.hint_color);
+        if (tp2.button_color) document.documentElement.style.setProperty('--tg-accent', tp2.button_color);
+      }
+    });
+  }
+
+  function haptic(type) {
+    if (!tg || !tg.HapticFeedback) return;
+    if (type === 'light') tg.HapticFeedback.impactOccurred('light');
+    else if (type === 'medium') tg.HapticFeedback.impactOccurred('medium');
+    else if (type === 'heavy') tg.HapticFeedback.impactOccurred('heavy');
+    else if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+    else if (type === 'error') tg.HapticFeedback.notificationOccurred('error');
+    else if (type === 'warning') tg.HapticFeedback.notificationOccurred('warning');
+    else if (type === 'select') tg.HapticFeedback.selectionChanged();
+  }
+var toastTimer = null;
+  function showToast(msg) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2000);
+  }
+
+  var colorStops = [
+    { temp: 16, c1: [79,172,254], c2: [0,195,255] },
+    { temp: 19, c1: [56,249,215], c2: [67,233,123] },
+    { temp: 22, c1: [84,215,120], c2: [160,230,80] },
+    { temp: 24, c1: [246,211,101], c2: [253,160,133] },
+    { temp: 27, c1: [245,87,108], c2: [240,147,251] },
+    { temp: 30, c1: [255,65,108], c2: [255,75,43] }
+  ];
+
+  var feelLabels = [
+    { max: 17, text: '❄️ Very Cold' },
+    { max: 20, text: '🥶 Cold' },
+    { max: 22, text: '🍃 Cool' },
+    { max: 25, text: '😊 Comfortable' },
+    { max: 28, text: '☀️ Warm' },
+    { max: 30, text: '🔥 Hot' }
+  ];
+function lerpColor(a, b, t) {
+    return [Math.round(a[0]+(b[0]-a[0])*t), Math.round(a[1]+(b[1]-a[1])*t), Math.round(a[2]+(b[2]-a[2])*t)];
+  }
+
+  function rgbStr(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
+
+  function getTempColors(temp) {
+    var lower = colorStops[0], upper = colorStops[colorStops.length - 1];
+    for (var i = 0; i < colorStops.length - 1; i++) {
+      if (temp >= colorStops[i].temp && temp <= colorStops[i+1].temp) { lower = colorStops[i]; upper = colorStops[i+1]; break; }
+    }
+    var range = upper.temp - lower.temp;
+    var t = range === 0 ? 0 : (temp - lower.temp) / range;
+    return { c1: lerpColor(lower.c1, upper.c1, t), c2: lerpColor(lower.c2, upper.c2, t) };
+  }
+
+  function getFeelLabel(temp) {
+    for (var i = 0; i < feelLabels.length; i++) { if (temp <= feelLabels[i].max) return feelLabels[i].text; }
+    return '🔥 Hot';
+  }
+
+  var currentTemp = 24;
+  var minTemp = 16, maxTemp = 30;
+
+  function changeTemp(delta) {
+    var newTemp = currentTemp + delta;
+    if (newTemp < minTemp || newTemp > maxTemp) { haptic('error'); return; }
+    currentTemp = newTemp;
+    haptic('light');
+var numEl = document.getElementById('tempNumber');
+    var fillEl = document.getElementById('tempSliderFill');
+    var cardEl = document.getElementById('tempCard');
+    var feelEl = document.getElementById('tempFeel');
+    var btnDown = document.getElementById('tempDown');
+    var btnUp = document.getElementById('tempUp');
+    numEl.textContent = currentTemp;
+    numEl.classList.remove('bump-up', 'bump-down');
+    void numEl.offsetWidth;
+    numEl.classList.add(delta > 0 ? 'bump-up' : 'bump-down');
+    var percent = ((currentTemp - minTemp) / (maxTemp - minTemp)) * 100;
+    fillEl.style.width = percent + '%';
+    var colors = getTempColors(currentTemp);
+    cardEl.style.background = 'linear-gradient(135deg, ' + rgbStr(colors.c1) + ' 0%, ' + rgbStr(colors.c2) + ' 100%)';
+    var hotness = (currentTemp - minTemp) / (maxTemp - minTemp);
+    if (hotness > 0.6) { var g = (hotness - 0.6) / 0.4; numEl.style.textShadow = '0 0 ' + (12*g) + 'px rgba(255,255,255,' + (0.5*g) + ')'; }
+    else if (hotness < 0.25) { var g2 = (0.25 - hotness) / 0.25; numEl.style.textShadow = '0 0 ' + (10*g2) + 'px rgba(200,230,255,' + (0.5*g2) + ')'; }
+    else { numEl.style.textShadow = 'none'; }
+    feelEl.textContent = getFeelLabel(currentTemp);
+    btnDown.disabled = currentTemp <= minTemp;
+    btnUp.disabled = currentTemp >= maxTemp;
+    if (currentTemp === minTemp || currentTemp === maxTemp) haptic('warning');
+  }
+document.getElementById('tempDown').disabled = currentTemp <= minTemp;
+  document.getElementById('tempUp').disabled = currentTemp >= maxTemp;
+  changeTemp(0);
+
+  function toggleLight() {
+    var card = document.getElementById('lightCard');
+    var toggle = document.getElementById('lightToggle');
+    var label = document.getElementById('lightLabel');
+    var sub = document.getElementById('lightSub');
+    toggle.classList.toggle('active');
+    var isOn = toggle.classList.contains('active');
+    if (isOn) {
+      card.classList.remove('off');
+      label.textContent = 'On';
+      sub.textContent = 'Brightness 80%';
+      haptic('success');
+      showToast('💡 Living room light turned on');
+    } else {
+      card.classList.add('off');
+      label.textContent = 'Off';
+      sub.textContent = 'Tap to turn on';
+      haptic('medium');
+      showToast('Living room light turned off');
+    }
+  }
+</script>
+</body>
+</html>
