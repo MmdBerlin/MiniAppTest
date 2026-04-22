@@ -1,0 +1,12 @@
+// مثال: ارسال وضعیت لامپ به سرور
+async function sendCommand(deviceId, state) {
+  try {
+    await fetch('https://your-server.com/api/control', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: deviceId, state: state })
+    });
+  } catch (e) {
+    tg.showAlert('خطا در اتصال به سرور');
+  }
+}
