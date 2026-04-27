@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitVision | پرو لباس هوشمند با هوش مصنوعی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- اضافه کردن کتابخانه Puter.js برای دسترسی به Nano Banana API -->
+    <script src="https://js.puter.com/v2/"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#c9a84c',
+                        'brand-light': '#e8d48b',
+                        'brand-dark': '#8b6914',
+                        surface: '#111111',
+                        'surface-2': '#1a1a1a',
+                        dark: '#080808',
+                    },
+                    fontFamily: { vazir: ['Vazirmatn', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --bg:#080808; --fg:#f0ede6; --muted:#7a7a7a; --accent:#c9a84c; --accent-light:#e8d48b; --card:#111111; --border:#222222; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Vazirmatn',sans-serif; background:var(--bg); color:var(--fg); overflow-x:hidden; }
+        ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:var(--bg); } ::-webkit-scrollbar-thumb { background:var(--accent); border-radius:3px; }
+        
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }
+        @keyframes pulse-glow { 0%,100%{box-shadow:0 0 20px rgba(201,168,76,0.15)} 50%{box-shadow:0 0 50px rgba(201,168,76,0.35)} }
+        @keyframes spin-slow { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes blob { 0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%} 50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%} }
+
+        .anim-scroll { opacity:0; transform:translateY(40px); transition:all 0.8s cubic-bezier(0.16,1,0.3,1); }
+        .anim-scroll.visible { opacity:1; transform:translateY(0); }
+        #hero-particles { position:absolute; inset:0; z-index:0; }
+        .gradient-text { background:linear-gradient(135deg,var(--accent-light),var(--accent),#8b6914); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+        .upload-zone { border:2px dashed var(--border); border-radius:16px; transition:all 0.3s ease; position:relative; overflow:hidden; cursor:pointer; min-height:280px; }
+        .upload-zone:hover, .upload-zone.dragover { border-color:var(--accent); background:rgba(201,168,76,0.04); }
+        .upload-zone.has-image { border-color:var(--accent); border-style:solid; }
+        .upload-zone img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; border-radius:14px; }
+        .upload-zone .remove-btn { position:absolute; top:8px; left:8px; z-index:10; background:rgba(0,0,0,0.75); color:#fff; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; display:none; align-items:center; justify-content:center; transition:background 0.2s; }
+        .upload-zone .remove-btn:hover { background:#c0392b; }
+        .upload-zone.has-image .remove-btn { display:flex; }
+
+        .loader-ring { width:56px; height:56px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin-slow 0.8s linear infinite; }
+        .toast-container { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; }
+        .toast { background:var(--card); border:1px solid var(--border); color:var(--fg); padding:14px 28px; border-radius:12px; font-size:14px; backdrop-filter:blur(20px); transform:translateY(80px); opacity:0; transition:all 0.4s cubic-bezier(0.16,1,0.3,1); white-space:nowrap; }
+        .toast.show { transform:translateY(0); opacity:1; }
+        .toast.error { border-color:#c0392b; } .toast.success { border-color:#27ae60; }
+
+        .nav-link { position:relative; } .nav-link::after { content:''; position:absolute; bottom:-4px; right:0; width:0; height:2px; background:var(--accent); transition:width 0.3s; } .nav-link:hover::after { width:100%; }
+
+        .btn-primary { background:linear-gradient(135deg,var(--accent),#a8882e); color:#080808; font-weight:700; border:none; cursor:pointer; transition:all 0.3s; position:relative; overflow:hidden; }
+        .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(201,168,76,0.3); }
+        .btn-outline { border:2px solid var(--accent); color:var(--accent); background:transparent; font-weight:600; cursor:pointer; transition:all 0.3s; }
+        .btn-outline:hover { background:rgba(201,168,76,0.1); transform:translateY(-2px); }
+
+        .feature-card { transition:all 0.4s cubic-bezier(0.16,1,0.3,1); }
+        .feature-card:hover { transform:translateY(-8px); border-color:var(--accent); box-shadow:0 20px 60px rgba(201,168,76,0.08); }
+        .step-circle { width:60px; height:60px; border-radius:50%; border:2px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:var(--accent); position:relative; flex-shrink:0; }
+        .step-circle::before { content:''; position:absolute; inset:-8px; border-radius:50%; border:1px solid rgba(201,168,76,0.2); }
+
+        .mobile-menu { position:fixed; inset:0; z-index:100; background:rgba(8,8,8,0.97); backdrop-filter:blur(20px); transform:translateX(100%); transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+        .mobile-menu.open { transform:translateX(0); }
+        .header-scrolled { background:rgba(8,8,8,0.92)!important; backdrop-filter:blur(20px)!important; border-bottom:1px solid var(--border)!important; }
+
+        .processing-step { display:flex; align-items:center; gap:12px; padding:10px 0; opacity:0.3; transition:opacity 0.5s; }
+        .processing-step.active { opacity:1; }
+        .processing-step .check-circle { width:26px; height:26px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; transition:all 0.3s; flex-shrink:0; font-size:12px; }
+        .processing-step.active .check-circle { border-color:var(--accent); background:var(--accent); color:var(--bg); }
+
+        .blob-shape { width:400px; height:400px; background:linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.03)); animation:blob 8s ease-in-out infinite; filter:blur(60px); position:absolute; }
+        .result-img { border-radius:16px; max-width:100%; display:block; border:1px solid var(--border); }
+
+        @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:0.01ms!important; transition-duration:0.01ms!important; } }
+        @media (max-width:768px) { .upload-zone { min-height:200px; } }
+    </style>
+</head>
+<body class="font-vazir">
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="flex flex-col items-center justify-center h-full gap-8 text-2xl">
+            <a href="#hero" onclick="closeMobileMenu()" class="text-[var(--fg)] hover:text-brand transition">خانه</a>
+            <a href="#how-it-works" onclick="closeMobileMenu()" class="text-[var(--fg)] hover:text-brand transition">نحوه کار</a>
+            <a href="#try-section" onclick="closeMobileMenu()" class="text-[var(--fg)] hover:text-brand transition">پرو لباس</a>
+            <a href="#features" onclick="closeMobileMenu()" class="text-[var(--fg)] hover:text-brand transition">ویژگی‌ها</a>
+            <button onclick="closeMobileMenu()" class="mt-8 text-[var(--muted)] text-lg"><i class="fas fa-times ml-2"></i>بستن</button>
+        </div>
+    </div>
+
+    <header id="mainHeader" class="fixed top-0 right-0 left-0 z-50 transition-all duration-300" style="background:transparent; border-bottom:1px solid transparent;">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="#hero" class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-light to-brand-dark flex items-center justify-center">
+                    <i class="fas fa-shirt text-dark text-lg"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight">Fit<span class="gradient-text">Vision</span></span>
+            </a>
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="#hero" class="nav-link text-sm text-[var(--fg)] hover:text-brand transition">خانه</a>
+                <a href="#how-it-works" class="nav-link text-sm text-[var(--fg)] hover:text-brand transition">نحوه کار</a>
+                <a href="#try-section" class="nav-link text-sm text-[var(--fg)] hover:text-brand transition">پرو لباس</a>
+                <a href="#features" class="nav-link text-sm text-[var(--fg)] hover:text-brand transition">ویژگی‌ها</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <a href="#try-section" class="hidden md:inline-block btn-primary px-5 py-2.5 rounded-xl text-sm">شروع رایگان</a>
+                <button id="menuToggle" onclick="toggleMobileMenu()" class="md:hidden text-[var(--fg)] text-xl" aria-label="منو"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <canvas id="hero-particles"></canvas>
+        <div class="blob-shape" style="top:-100px;right:-150px;"></div>
+        <div class="blob-shape" style="bottom:-100px;left:-150px;animation-delay:-4s;"></div>
+        <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
+            <div class="inline-block mb-6 px-5 py-2 rounded-full border border-[var(--border)] bg-surface/50 backdrop-blur-sm text-sm text-[var(--muted)]" style="animation:fadeInUp 0.8s ease forwards">
+                <i class="fas fa-sparkles text-brand ml-2"></i>فناوری Nano Banana در خدمت مد
+            </div>
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6" style="animation:fadeInUp 0.8s 0.15s ease both">
+                لباس مورد علاقه‌ات رو
+                <br><span class="gradient-text">قبل از خرید بپوش</span>
+            </h1>
+            <p class="text-lg md:text-xl text-[var(--muted)] max-w-2xl mx-auto mb-10 leading-relaxed" style="animation:fadeInUp 0.8s 0.3s ease both">
+                با FitVision کافیه عکس خودت و لباس دلخواهت رو آپلود کنی تا هوش مصنوعی لباس رو روی تنه‌ات پرو کنه. بدون نیاز به اتاق پرو، بدون حدس و گمان.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4" style="animation:fadeInUp 0.8s 0.45s ease both">
+                <a href="#try-section" class="btn-primary px-8 py-4 rounded-2xl text-base flex items-center gap-2">
+                    <i class="fas fa-wand-magic-sparkles"></i>پرو لباس هوشمند
+                </a>
+                <a href="#how-it-works" class="btn-outline px-8 py-4 rounded-2xl text-base flex items-center gap-2">
+                    <i class="fas fa-play"></i>نحوه کار
+                </a>
+            </div>
+            <div class="mt-16 flex flex-wrap items-center justify-center gap-8 md:gap-16" style="animation:fadeInUp 0.8s 0.6s ease both">
+                <div class="text-center"><div class="text-3xl font-black gradient-text" id="stat1">0</div><div class="text-xs text-[var(--muted)] mt-1">پرو لباس موفق</div></div>
+                <div class="w-px h-10 bg-[var(--border)] hidden md:block"></div>
+                <div class="text-center"><div class="text-3xl font-black gradient-text" id="stat2">0</div><div class="text-xs text-[var(--muted)] mt-1">کاربر فعال</div></div>
+                <div class="w-px h-10 bg-[var(--border)] hidden md:block"></div>
+                <div class="text-center"><div class="text-3xl font-black gradient-text" id="stat3">0%</div><div class="text-xs text-[var(--muted)] mt-1">رضایت کاربران</div></div>
+            </div>
+        </div>
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10" style="animation:float 2s ease-in-out infinite">
+            <div class="w-6 h-10 rounded-full border-2 border-[var(--border)] flex items-start justify-center p-1.5"><div class="w-1.5 h-3 rounded-full bg-brand" style="animation:float 1.5s ease-in-out infinite"></div></div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="py-24 md:py-32 relative">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16 anim-scroll">
+                <span class="text-brand text-sm font-semibold tracking-wider">مراحل ساده</span>
+                <h2 class="text-3xl md:text-5xl font-black mt-3">چطور کار می‌کنه؟</h2>
+                <p class="text-[var(--muted)] mt-4 max-w-lg mx-auto">فقط سه قدم تا دیدن لباس دلخواهت روی تنه‌ات فاصله داری</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="anim-scroll bg-surface rounded-2xl p-8 border border-[var(--border)] relative feature-card" style="transition-delay:0.1s">
+                    <div class="step-circle mb-6">۱</div>
+                    <h3 class="text-xl font-bold mb-3">عکس خودت رو آپلود کن</h3>
+                    <p class="text-[var(--muted)] text-sm leading-relaxed">یک عکس تمام‌قد واضح از خودت آپلود کن. بهتره عکس رو به صورت مستقیم و با نور خوب باشه.</p>
+                    <div class="absolute top-6 left-6 text-brand/20 text-6xl font-black">01</div>
+                </div>
+                <div class="anim-scroll bg-surface rounded-2xl p-8 border border-[var(--border)] relative feature-card" style="transition-delay:0.25s">
+                    <div class="step-circle mb-6">۲</div>
+                    <h3 class="text-xl font-bold mb-3">لباس دلخواهت رو انتخاب کن</h3>
+                    <p class="text-[var(--muted)] text-sm leading-relaxed">عکس لباسی که می‌خوای بپوشی رو آپلود کن. تی‌شرت، کت، لباس مجلسی یا هر چیز دیگه.</p>
+                    <div class="absolute top-6 left-6 text-brand/20 text-6xl font-black">02</div>
+                </div>
+                <div class="anim-scroll bg-surface rounded-2xl p-8 border border-[var(--border)] relative feature-card" style="transition-delay:0.4s">
+                    <div class="step-circle mb-6">۳</div>
+                    <h3 class="text-xl font-bold mb-3">نتیجه رو ببین</h3>
+                    <p class="text-[var(--muted)] text-sm leading-relaxed">هوش مصنوعی لباس رو روی تنه‌ات پرو می‌کنه و تصویر نهایی رو بهت نمایش میده. همین!</p>
+                    <div class="absolute top-6 left-6 text-brand/20 text-6xl font-black">03</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="try-section" class="py-24 md:py-32 relative">
+        <div class="blob-shape" style="top:50%;right:-200px;animation-delay:-2s;"></div>
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16 anim-scroll">
+                <span class="text-brand text-sm font-semibold tracking-wider">پرو لباس مجازی</span>
+                <h2 class="text-3xl md:text-5xl font-black mt-3">لباست رو پرو کن</h2>
+                <p class="text-[var(--muted)] mt-4 max-w-lg mx-auto">عکس قدی و عکس لباست رو آپلود کن و نتیجه رو ببین</p>
+            </div>
+
+            <div class="anim-scroll grid lg:grid-cols-2 gap-8 items-start">
+                <!-- آپلود پنل -->
+                <div class="bg-surface rounded-3xl p-6 md:p-8 border border-[var(--border)]">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <label class="block text-sm font-semibold mb-3 text-[var(--fg)]"><i class="fas fa-user text-brand ml-2"></i>عکس قدی شما</label>
+                            <div class="upload-zone flex flex-col items-center justify-center p-6 text-center" id="personZone" onclick="document.getElementById('personInput').click()">
+                                <input type="file" id="personInput" accept="image/*" class="hidden">
+                                <img id="personPreview" alt="پیش‌نمایش عکس قدی">
+                                <button class="remove-btn" onclick="event.stopPropagation(); removeImage('person')"><i class="fas fa-times text-xs"></i></button>
+                                <div id="personPlaceholder" class="flex flex-col items-center gap-3">
+                                    <div class="w-14 h-14 rounded-2xl bg-surface-2 flex items-center justify-center text-brand text-xl"><i class="fas fa-user-plus"></i></div>
+                                    <p class="text-sm text-[var(--muted)]">کلیک یا کشیدن عکس</p>
+                                    <p class="text-xs text-[var(--border)]">PNG, JPG تا ۵MB</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-3 text-[var(--fg)]"><i class="fas fa-shirt text-brand ml-2"></i>عکس لباس</label>
+                            <div class="upload-zone flex flex-col items-center justify-center p-6 text-center" id="garmentZone" onclick="document.getElementById('garmentInput').click()">
+                                <input type="file" id="garmentInput" accept="image/*" class="hidden">
+                                <img id="garmentPreview" alt="پیش‌نمایش عکس لباس">
+                                <button class="remove-btn" onclick="event.stopPropagation(); removeImage('garment')"><i class="fas fa-times text-xs"></i></button>
+                                <div id="garmentPlaceholder" class="flex flex-col items-center gap-3">
+                                    <div class="w-14 h-14 rounded-2xl bg-surface-2 flex items-center justify-center text-brand text-xl"><i class="fas fa-tshirt"></i></div>
+                                    <p class="text-sm text-[var(--muted)]">کلیک یا کشیدن عکس</p>
+                                    <p class="text-xs text-[var(--border)]">PNG, JPG تا ۵MB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="submitBtn" onclick="handleSubmit()" class="btn-primary w-full py-4 rounded-2xl text-base flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none" disabled>
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        پرو لباس با هوش مصنوعی
+                    </button>
+                    <p class="text-xs text-[var(--muted)] text-center mt-3"><i class="fas fa-info-circle text-brand ml-1"></i>اولین درخواست نیازمند لاگین رایگان در پلتفرم Puter است</p>
+                </div>
+<div class="bg-surface rounded-3xl p-6 md:p-8 border border-[var(--border)] min-h-[400px] flex flex-col items-center justify-center" id="resultPanel">
+                    <div id="resultIdle" class="text-center">
+                        <div class="w-20 h-20 rounded-full bg-surface-2 flex items-center justify-center text-3xl text-[var(--border)] mx-auto mb-4"><i class="fas fa-image"></i></div>
+                        <p class="text-[var(--muted)] text-sm">نتیجه پرو لباس اینجا نمایش داده می‌شود</p>
+                    </div>
+                    <div id="resultLoading" class="text-center hidden">
+                        <div class="loader-ring mx-auto mb-6"></div>
+                        <p class="font-bold mb-4 text-lg">در حال پردازش توسط هوش مصنوعی...</p>
+                        <div class="space-y-1 text-right max-w-xs mx-auto">
+                            <div class="processing-step" id="step1"><div class="check-circle"><i class="fas fa-check"></i></div><span class="text-sm">ترکیب و تحلیل تصاویر</span></div>
+                            <div class="processing-step" id="step2"><div class="check-circle"><i class="fas fa-check"></i></div><span class="text-sm">ارسال به مدل Nano Banana</span></div>
+                            <div class="processing-step" id="step3"><div class="check-circle"><i class="fas fa-check"></i></div><span class="text-sm">تولید تصویر پرو لباس</span></div>
+                            <div class="processing-step" id="step4"><div class="check-circle"><i class="fas fa-check"></i></div><span class="text-sm">دریافت و نمایش نتیجه</span></div>
+                        </div>
+                    </div>
+                    <div id="resultSuccess" class="hidden w-full">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-lg"><i class="fas fa-sparkles text-brand ml-2"></i>نتیجه پرو لباس</h3>
+                            <button onclick="downloadResult()" class="text-sm text-brand hover:text-brand-light transition flex items-center gap-1"><i class="fas fa-download"></i> دانلود</button>
+                        </div>
+                        <div class="rounded-2xl overflow-hidden bg-dark" id="resultImgContainer">
+                            <img id="resultImg" class="result-img w-full h-auto" alt="نتیجه پرو لباس">
+                        </div>
+                        <div class="flex gap-3 mt-4">
+                            <button onclick="resetAll()" class="flex-1 btn-outline py-3 rounded-xl text-sm flex items-center justify-center gap-2"><i class="fas fa-redo"></i> تلاش دوباره</button>
+                            <button onclick="downloadResult()" class="flex-1 btn-primary py-3 rounded-xl text-sm flex items-center justify-center gap-2"><i class="fas fa-download"></i> ذخیره تصویر</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+<section id="features" class="py-24 md:py-32 relative">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16 anim-scroll">
+                <span class="text-brand text-sm font-semibold tracking-wider">چرا FitVision</span>
+                <h2 class="text-3xl md:text-5xl font-black mt-3">ویژگی‌های برجسته</h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="anim-scroll feature-card bg-surface rounded-2xl p-7 border border-[var(--border)]" style="transition-delay:0.05s">
+                    <div class="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-brand text-xl mb-5"><i class="fas fa-bolt"></i></div>
+                    <h3 class="font-bold text-lg mb-2">پردازش ابری</h3>
+                    <p class="text-[var(--muted)] text-sm leading-relaxed">مدل‌های پیشرفته Google Gemini در فضای ابری پردازش می‌شوند بدون نیاز به سخت‌افزار خاص</p>
+                </div>
+                <div class="anim-scroll feature-card bg-surface rounded-2xl p-7 border border-[var(--border)]" style="transition-delay:0.1s">
+                    <div class="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-brand text-xl mb-5"><i class="fas fa-shield-halved"></i></div>
+                    <h3 class="font-bold text-lg mb-2">حریم خصوصی</h3>
+                    <p class="text-[var(--muted)] text-sm leading-relaxed">تصاویر شما در پلتفرم Puter امن است و هیچ اطلاعاتی در سرورهای ما ذخیره نمی‌گردد</p>
+                </div>
+                <div class="anim-scroll feature-card bg-surface rounded-2xl p-7 border border-[var(--border)]" style="transition-delay:0.15s">
+                    <div class="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-brand text-xl mb-5"><i class="fas fa-palette"></i></div>
+                    <h3 class="font-bold text-lg mb-2">واقع‌گرایی بالا</h3>
+                    <p class="text-[var(--muted)] text-sm leading-relaxed">الگوریتم‌های Gemini تضمین می‌کنند لباس طبیعی و متناسب با بدن شما به نظر برسد</p>
+                </div>
+            </div>
+        </div>
+    </section>
+<section class="py-24 md:py-32 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-brand/5 via-transparent to-transparent"></div>
+        <div class="blob-shape" style="top:-100px;left:50%;animation-delay:-3s;"></div>
+        <div class="max-w-3xl mx-auto px-6 text-center relative z-10 anim-scroll">
+            <div class="inline-block mb-4 px-4 py-1.5 rounded-full border border-brand/30 text-brand text-xs font-semibold">رایگان و بدون نیاز به کارت بانکی</div>
+            <h2 class="text-3xl md:text-5xl font-black mb-6">همین الان<br><span class="gradient-text">لباست رو پرو کن</span></h2>
+            <p class="text-[var(--muted)] text-lg mb-10 max-w-lg mx-auto leading-relaxed">دیگه لازم نیست لباس رو بخری تا بفهمی بهت می‌اد یا نه. با چند کلیک ساده نتیجه رو ببین.</p>
+            <a href="#try-section" class="btn-primary inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-lg" style="animation:pulse-glow 2s ease-in-out infinite"><i class="fas fa-wand-magic-sparkles"></i>شروع پرو لباس</a>
+        </div>
+    </section>
+
+    <footer class="border-t border-[var(--border)] py-12">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-light to-brand-dark flex items-center justify-center"><i class="fas fa-shirt text-dark text-sm"></i></div>
+                <span class="text-lg font-extrabold">Fit<span class="gradient-text">Vision</span></span>
+            </div>
+            <p class="text-xs text-[var(--muted)]">Powered by Puter.js & Google Gemini &copy; 2025</p>
+        </div>
+    </footer>
+<script>
+        // پارتیکل‌های هیرو
+        (function initParticles() {
+            const canvas = document.getElementById('hero-particles');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let mouse = { x: -9999, y: -9999 };
+
+            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+            resize();
+            window.addEventListener('resize', resize);
+            window.addEventListener('mousemove', e => { const rect = canvas.getBoundingClientRect(); mouse.x = e.clientX - rect.left; mouse.y = e.clientY - rect.top; });
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 0.5; this.speedX = (Math.random() - 0.5) * 0.4; this.speedY = (Math.random() - 0.5) * 0.4; this.opacity = Math.random() * 0.5 + 0.1; }
+                update() {
+                    this.x += this.speedX; this.y += this.speedY;
+                    const dx = this.x - mouse.x; const dy = this.y - mouse.y; const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120) { const force = (120 - dist) / 120; this.x += dx / dist * force * 1.5; this.y += dy / dist * force * 1.5; }
+                    if (this.x < -10 || this.x > canvas.width + 10 || this.y < -10 || this.y > canvas.height + 10) this.reset();
+                }
+                draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(201,168,76,${this.opacity})`; ctx.fill(); }
+            }
+
+            const count = Math.min(Math.floor((canvas.width * canvas.height) / 8000), 120);
+            for (let i = 0; i < count; i++) particles.push(new Particle());
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+function animateCounter(el, target, suffix = '') { let current = 0; const step = Math.max(1, Math.floor(target / 60)); const interval = setInterval(() => { current += step; if (current >= target) { current = target; clearInterval(interval); } el.textContent = current.toLocaleString('fa-IR') + suffix; }, 25); }
+        let statsCounted = false;
+        const heroObserver = new IntersectionObserver((entries) => { if (entries[0].isIntersecting && !statsCounted) { statsCounted = true; animateCounter(document.getElementById('stat1'), 12847); animateCounter(document.getElementById('stat2'), 4320); animateCounter(document.getElementById('stat3'), 97, '%'); } }, { threshold: 0.3 });
+        heroObserver.observe(document.getElementById('hero'));
+
+        // انیمیشن اسکرول
+        const scrollObserver = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.anim-scroll').forEach(el => scrollObserver.observe(el));
+
+        // هدر اسکرول
+        window.addEventListener('scroll', () => { const header = document.getElementById('mainHeader'); if (window.scrollY > 80) header.classList.add('header-scrolled'); else header.classList.remove('header-scrolled'); });
+
+        // منوی موبایل
+        function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
+        function closeMobileMenu() { document.getElementById('mobileMenu').classList.remove('open'); }
+
+        // اسکرول نرم
+        document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); const target = document.querySelector(a.getAttribute('href')); if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }); });
+
+        // Toast
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div'); toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle text-green-400' : type === 'error' ? 'fa-exclamation-circle text-red-400' : 'fa-info-circle text-brand'} ml-2"></i>${message}`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 4000);
+        }
+let personFile = null, garmentFile = null, personImg = null, garmentImg = null;
+
+        function setupUploadZone(zoneId, inputId, type) {
+            const zone = document.getElementById(zoneId), input = document.getElementById(inputId);
+            zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+            zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('dragover'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) handleFile(file, type); else showToast('لطفاً یک فایل تصویری معتبر آپلود کنید', 'error'); });
+            input.addEventListener('change', e => { const file = e.target.files[0]; if (file) handleFile(file, type); });
+        }
+
+        function handleFile(file, type) {
+            if (file.size > 5 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۵ مگابایت باشد', 'error'); return; }
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = new Image();
+                img.onload = () => {
+                    if (type === 'person') { personFile = file; personImg = img; document.getElementById('personPreview').src = e.target.result; document.getElementById('personZone').classList.add('has-image'); document.getElementById('personPlaceholder').style.display = 'none'; }
+                    else { garmentFile = file; garmentImg = img; document.getElementById('garmentPreview').src = e.target.result; document.getElementById('garmentZone').classList.add('has-image'); document.getElementById('garmentPlaceholder').style.display = 'none'; }
+                    updateSubmitBtn();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage(type) {
+            if (type === 'person') { personFile = null; personImg = null; document.getElementById('personPreview').src = ''; document.getElementById('personZone').classList.remove('has-image'); document.getElementById('personPlaceholder').style.display = 'flex'; document.getElementById('personInput').value = ''; }
+            else { garmentFile = null; garmentImg = null; document.getElementById('garmentPreview').src = ''; document.getElementById('garmentZone').classList.remove('has-image'); document.getElementById('garmentPlaceholder').style.display = 'flex'; document.getElementById('garmentInput').value = ''; }
+            updateSubmitBtn();
+        }
+
+        function updateSubmitBtn() { document.getElementById('submitBtn').disabled = !(personFile && garmentFile); }
+        setupUploadZone('personZone', 'personInput', 'person');
+        setupUploadZone('garmentZone', 'garmentInput', 'garment');
+
+        // تاخیر ساده
+function showResultState(state) {
+            document.getElementById('resultIdle').classList.add('hidden');
+            document.getElementById('resultLoading').classList.add('hidden');
+            document.getElementById('resultSuccess').classList.add('hidden');
+            ['step1', 'step2', 'step3', 'step4'].forEach(id => document.getElementById(id).classList.remove('active'));
+            if (state === 'idle') document.getElementById('resultIdle').classList.remove('hidden');
+            if (state === 'loading') document.getElementById('resultLoading').classList.remove('hidden');
+            if (state === 'success') document.getElementById('resultSuccess').classList.remove('hidden');
+        }
+
+        // ساخت کلاژ از دو عکس برای ارسال به API
+        // چون API مستقیماً دو عکس مجزا نمی‌گیره، عکس‌ها رو کنار هم میذاریم تا AI هر دو رو ببینه
+        function generateCollageBase64() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // اندازه استاندارد برای مدل
+            canvas.width = 1024;
+            canvas.height = 512;
+            
+            // پس‌زمینه
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, 1024, 512);
+            
+            // رسم لباس در سمت چپ (برای راست‌چین بودن در فارسی، چپ میشه اول)
+            if (garmentImg) {
+                const gScale = Math.min(450 / garmentImg.naturalWidth, 450 / garmentImg.naturalHeight);
+                const gW = garmentImg.naturalWidth * gScale;
+                const gH = garmentImg.naturalHeight * gScale;
+                ctx.drawImage(garmentImg, 30 + (450 - gW) / 2, 30 + (450 - gH) / 2, gW, gH);
+            }
+if (personImg) {
+                const pScale = Math.min(450 / personImg.naturalWidth, 450 / personImg.naturalHeight);
+                const pW = personImg.naturalWidth * pScale;
+                const pH = personImg.naturalHeight * pScale;
+                ctx.drawImage(personImg, 530 + (450 - pW) / 2, 30 + (450 - pH) / 2, pW, pH);
+            }
+            
+            // برچسب‌های متنی برای هدایت هوش مصنوعی
+            ctx.fillStyle = '#c9a84c';
+            ctx.font = 'bold 24px Vazirmatn, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Garment (لباس)', 256, 500);
+            ctx.fillText('Person (شخص)', 768, 500);
+            
+            // خط جداکننده
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(512, 20);
+            ctx.lineTo(512, 490);
+            ctx.stroke();
+            
+            // خروجی Base64 بدون هدر data:image/png;base64,
+            return canvas.toDataURL('image/png').split(',')[1];
+        }
+async function callNanoBananaAPI(base64Collage) {
+            if (typeof puter === 'undefined') {
+                throw new Error('کتابخانه Puter.js بارگذاری نشده است. اتصال اینترنت را بررسی کنید.');
+            }
+
+            // پرامپت دقیق به زبان انگلیسی (برای مدل‌های AI انگلیسی بهتر عمل می‌کند)
+            const prompt = "Generate a photorealistic image of the person on the right wearing the garment on the left. Ensure the garment fits naturally on the person's body, preserving the person's original pose, facial features, and skin tone. Apply the exact fabric, pattern, and style of the garment. High quality, realistic lighting.";
+
+            const resultImage = await puter.ai.txt2img(prompt, {
+                model: "gemini-3.1-flash-image-preview", // مدل پیشنهادی سریع و باکیفیت
+                input_image: base64Collage,
+                input_image_mime_type: "image/png"
+            });
+
+            // طبق مستندات، خروجی یک HTMLImageElement است
+            if (resultImage && resultImage.src) {
+                return resultImage.src;
+            } else {
+                throw new Error('پاسخ نامعتبر از سرور هوش مصنوعی دریافت شد');
+            }
+        }
+async function handleSubmit() {
+            if (!personFile || !garmentFile) { showToast('لطفاً هر دو تصویر را آپلود کنید', 'error'); return; }
+
+            showResultState('loading');
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+
+            try {
+                // مرحله ۱: ترکیب تصاویر
+                document.getElementById('step1').classList.add('active');
+                await delay(500);
+                const collageBase64 = generateCollageBase64();
+
+                // مرحله ۲: ارسال به مدل
+                document.getElementById('step2').classList.add('active');
+                await delay(300);
+                
+                // مرحله ۳: پردازش در هوش مصنوعی (این مرحله زمان‌بر است)
+                document.getElementById('step3').classList.add('active');
+                const resultImageUrl = await callNanoBananaAPI(collageBase64);
+
+                // مرحله ۴: دریافت نتیجه
+                document.getElementById('step4').classList.add('active');
+                await delay(500);
+
+                // نمایش نتیجه
+                const resultImg = document.getElementById('resultImg');
+                resultImg.src = resultImageUrl;
+                showResultState('success');
+                showToast('پرو لباس با موفقیت انجام شد!', 'success');
+
+            }catch (error) {
+                console.error('API Error:', error);
+                showToast(error.message || 'خطا در پردازش تصویر. لطفاً دوباره تلاش کنید.', 'error');
+                showResultState('idle');
+            } finally {
+                btn.disabled = false;
+                updateSubmitBtn();
+            }
+        }
+
+        function downloadResult() {
+            const imgSrc = document.getElementById('resultImg').src;
+            if (!imgSrc) return;
+            const link = document.createElement('a');
+            link.href = imgSrc;
+            link.download = 'fitvision-tryon-result.png';
+            link.click();
+            showToast('تصویر با موفقیت دانلود شد', 'success');
+        }
+
+        function resetAll() {
+            removeImage('person');
+            removeImage('garment');
+            showResultState('idle');
+        }
+    </script>
+</body>
+</html>
