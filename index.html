@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پرو لباس</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.puter.com/v2/"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>tailwind.config={theme:{extend:{fontFamily:{vazir:['Vazirmatn','sans-serif']}}}}</script>
+    <style>
+:root{--bg:#09090b;--bg-c:#131316;--bg-e:#1c1c20;--fg:#f0ece6;--fg-m:#7a7672;--ac:#e8762d;--ac-l:#f5a623;--ac-g:rgba(232,118,45,.25);--bd:#27272a;--ok:#16a34a;--er:#dc2626}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;overflow-x:hidden}
+.atm{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 700px 500px at 15% 10%,rgba(232,118,45,.07),transparent),radial-gradient(ellipse 500px 600px at 85% 80%,rgba(245,166,35,.04),transparent)}
+.grd{background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:48px 48px}
+.uz{border:2px dashed var(--bd);border-radius:20px;background:var(--bg-c);transition:all .35s cubic-bezier(.4,0,.2,1);cursor:pointer;position:relative;overflow:hidden}
+.uz::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,var(--ac-g),transparent 70%);opacity:0;transition:opacity .4s;pointer-events:none}
+.uz:hover{border-color:var(--ac)}.uz:hover::before{opacity:.3}
+.uz.dg{border-color:var(--ac);background:rgba(232,118,45,.04);box-shadow:0 0 40px var(--ac-g);transform:scale(1.01)}
+.uz.hi{border-style:solid;border-color:rgba(232,118,45,.25)}.uz.hi:hover{border-color:var(--ac)}
+.uz img.pv{width:100%;height:100%;object-fit:cover;border-radius:18px;position:absolute;inset:0}
+.uo{position:absolute;inset:0;background:rgba(9,9,11,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;border-radius:18px;z-index:2}
+.uz.hi:hover .uo{opacity:1}
+.bg{background:linear-gradient(135deg,var(--ac),#c85a18);color:#fff;font-family:'Vazirmatn',sans-serif;font-weight:800;font-size:1.1rem;padding:18px 56px;border:none;border-radius:16px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+.bg::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);transition:left .6s}
+.bg:hover:not(:disabled)::before{left:100%}
+.bg:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 12px 40px var(--ac-g)}
+.bg:disabled{opacity:.3;cursor:not-allowed;filter:grayscale(.5)}
+.zl{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:var(--bg-e);border:1px solid var(--bd);border-radius:10px;font-size:.82rem;color:var(--fg-m);margin-bottom:12px}
+.zl i{color:var(--ac);font-size:.9rem}
+.mi{display:flex;align-items:center;justify-content:center;color:var(--fg-m);font-size:1.6rem;animation:pu 3s ease-in-out infinite}
+@keyframes pu{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.7;transform:scale(1.15)}}
+.lw{display:none}.lw.on{display:flex}
+.lr{width:56px;height:56px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:ro .9s linear infinite}
+.ld span{animation:db 1.4s infinite both;opacity:0}.ld span:nth-child(2){animation-delay:.2s}.ld span:nth-child(3){animation-delay:.4s}
+@keyframes db{0%,80%,100%{opacity:0}40%{opacity:1}}
+@keyframes ro{to{transform:rotate(360deg)}}
+@keyframes fu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.rb{border:1px solid var(--bd);border-radius:20px;background:var(--bg-c);overflow:hidden;position:relative}
+.rb::before{content:'';position:absolute;top:-1px;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent)}
+.rb img{width:100%;height:auto;display:block}
+.tst{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--bg-e);border:1px solid var(--er);color:#fca5a5;padding:14px 28px;border-radius:14px;font-size:.88rem;z-index:9999;transition:transform .45s cubic-bezier(.4,0,.2,1);max-width:92vw;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.tst.sh{transform:translateX(-50%) translateY(0)}.tst.ok{border-color:var(--ok);color:#86efac}
+.bd{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:0 0;border:1px solid rgba(232,118,45,.35);color:var(--ac);border-radius:12px;font-family:'Vazirmatn',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .3s}
+.bd:hover{background:rgba(232,118,45,.08);border-color:var(--ac)}
+.pt{position:fixed;width:2px;height:2px;background:var(--ac);border-radius:50%;pointer-events:none;z-index:0;opacity:0}
+@keyframes pd{0%,100%{opacity:0;transform:translate(0,0)}20%{opacity:.35}50%{opacity:.15;transform:translate(var(--dx),var(--dy))}80%{opacity:.25}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media(max-width:767px){.mi{transform:rotate(90deg);margin:-8px 0}}
+    </style>
+</head>
+<body class="grd">
+    <div class="atm"></div>
+    <div id="ptc" aria-hidden="true"></div>
+
+    <div class="relative z-10 min-h-screen flex flex-col">
+
+        <header class="pt-8 pb-4 px-6 text-center">
+            <div class="inline-flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+                     style="background:linear-gradient(135deg,var(--ac),#c85a18)">
+                    <i class="fas fa-tshirt text-white text-lg"></i>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-black tracking-tight">
+                    <span style="color:var(--ac)">پرو</span><span>لباس</span>
+                </h1>
+            </div>
+            <p class="text-sm" style="color:var(--fg-m)">
+                عکس قدی و لباس مورد نظرت رو آپلود کن — اولین بار لاگین میشه
+            </p>
+        </header>
+
+        <main class="flex-1 px-4 md:px-8 pb-16 max-w-5xl mx-auto w-full">
+
+            <section class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-6 items-center mb-10">
+
+                <div>
+                    <div class="zl"><i class="fas fa-user"></i><span>عکس قدی شما</span></div>
+                    <div id="pZone" class="uz aspect-[3/4] flex items-center justify-center"
+                         ondragover="dgOver(event,'pZone')" ondragleave="dgLeave(event,'pZone')"
+                         ondrop="dgDrop(event,'person')" role="button" tabindex="0"
+                         onkeydown="if(event.key==='Enter')upClick('person')">
+                        <div id="pPh" class="text-center p-8 relative z-1">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+                                 style="background:var(--bg-e);border:1px solid var(--bd)">
+                                <i class="fas fa-cloud-upload-alt text-2xl" style="color:var(--fg-m)"></i>
+                            </div>
+                            <p class="text-sm font-medium mb-1">عکس قدی خودت رو آپلود کن</p>
+                            <p class="text-xs" style="color:var(--fg-m)">بکش و رها کن یا کلیک کن</p>
+                            <p class="text-xs mt-2" style="color:var(--bd)">JPG, PNG — حداکثر ۱۰MB</p>
+                        </div>
+                        <img id="pPv" class="pv" src="" alt="" style="display:none">
+                        <div class="uo">
+                            <span class="text-sm text-white font-medium">
+                                <i class="fas fa-redo-alt ml-2"></i>تغییر عکس
+                            </span>
+                        </div>
+                    </div>
+                    <input type="file" id="pIn" accept="image/jpeg,image/png,image/webp" class="hidden">
+                </div>
+
+                <div class="mi hidden md:flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center"
+                         style="background:var(--bg-e);border:1px solid var(--bd)">
+                        <i class="fas fa-plus" style="color:var(--ac)"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="zl"><i class="fas fa-tshirt"></i><span>عکس لباس</span></div>
+                    <div id="cZone" class="uz aspect-[3/4] flex items-center justify-center"
+                         ondragover="dgOver(event,'cZone')" ondragleave="dgLeave(event,'cZone')"
+                         ondrop="dgDrop(event,'cloth')" role="button" tabindex="0"
+                         onkeydown="if(event.key==='Enter')upClick('cloth')">
+                        <div id="cPh" class="text-center p-8 relative z-1">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+                                 style="background:var(--bg-e);border:1px solid var(--bd)">
+                                <i class="fas fa-cloud-upload-alt text-2xl" style="color:var(--fg-m)"></i>
+                            </div>
+                            <p class="text-sm font-medium mb-1">عکس لباس مورد نظرت</p>
+                            <p class="text-xs" style="color:var(--fg-m)">بکش و رها کن یا کلیک کن</p>
+                            <p class="text-xs mt-2" style="color:var(--bd)">JPG, PNG — حداکثر ۱۰MB</p>
+                        </div>
+                        <img id="cPv" class="pv" src="" alt="" style="display:none">
+                        <div class="uo">
+                            <span class="text-sm text-white font-medium">
+                                <i class="fas fa-redo-alt ml-2"></i>تغییر عکس
+                            </span>
+                        </div>
+                    </div>
+                    <input type="file" id="cIn" accept="image/jpeg,image/png,image/webp" class="hidden">
+                </div>
+            </section>
+
+            <div class="text-center mb-10">
+                <button id="genBtn" class="bg" disabled>
+                    <i class="fas fa-wand-magic-sparkles ml-2"></i>ساخت تصویر
+                </button>
+                <p id="bHint" class="text-xs mt-3" style="color:var(--bd)">ابتدا هر دو عکس را آپلود کنید</p>
+            </div>
+
+            <div id="loader" class="lw flex-col items-center gap-5 mb-10" role="status">
+                <div class="lr"></div>
+                <div class="text-center">
+                    <p class="text-sm font-medium mb-1">
+                        دارم لباس رو تنت می‌پوشونم
+                        <span class="ld"><span>.</span><span>.</span><span>.</span></span>
+                    </p>
+                    <p id="lStep" class="text-xs" style="color:var(--fg-m)">در حال تحلیل تصاویر...</p>
+                </div>
+            </div>
+
+            <section id="resSec" style="display:none">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full inline-block" style="background:var(--ac)"></span>
+                        نتیجه تست لباس
+                    </h2>
+                    <button class="bd" id="dlBtn">
+                        <i class="fas fa-download"></i><span>دانلود</span>
+                    </button>
+                </div>
+                <div class="rb"><img id="resImg" src="" alt="نتیجه"></div>
+            </section>
+
+            <section id="txtSec" style="display:none">
+                <div class="rb p-6">
+                    <h2 class="text-base font-bold mb-3 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full inline-block" style="background:var(--ac-l)"></span>
+                        پاسخ هوش مصنوعی
+                    </h2>
+                    <p id="txtRes" class="text-sm leading-8 whitespace-pre-wrap" style="color:var(--fg-m)"></p>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="py-5 text-center text-xs" style="color:var(--bd)">
+            Puter AI — رایگان و نامحدود
+        </footer>
+    </div>
+
+    <div id="toast" class="tst" role="alert"></div>
+    <script>
+        var pFile=null,cFile=null,pUrl=null,cUrl=null,resUrl=null,tTmr=null;
+
+        /* ===== آپلود ===== */
+        function upClick(t){
+            document.getElementById(t==='person'?'pIn':'cIn').click();
+        }
+        function dgOver(e,z){e.preventDefault();e.stopPropagation();document.getElementById(z).classList.add('dg')}
+        function dgLeave(e,z){e.preventDefault();e.stopPropagation();document.getElementById(z).classList.remove('dg')}
+        function dgDrop(e,t){
+            e.preventDefault();e.stopPropagation();
+            document.getElementById(t==='person'?'pZone':'cZone').classList.remove('dg');
+            if(e.dataTransfer.files.length>0) procFile(e.dataTransfer.files[0],t);
+        }
+        function procFile(f,t){
+            if(!f.type.startsWith('image/')){toast('فقط فایل تصویری مجاز','er');return}
+            if(f.size>10*1024*1024){toast('حداکثر ۱۰ مگابایت','er');return}
+            if(t==='person')pFile=f;else cFile=f;
+            var r=new FileReader();
+            r.onload=function(e){
+                if(t==='person'){pUrl=e.target.result;showPv('p',e.target.result)}
+                else{cUrl=e.target.result;showPv('c',e.target.result)}
+                upBtn();
+            };
+            r.readAsDataURL(f);
+        }
+        function showPv(t,u){
+            document.getElementById(t+'Pv').src=u;
+            document.getElementById(t+'Pv').style.display='block';
+            document.getElementById(t+'Ph').style.display='none';
+            document.getElementById(t+'Zone').classList.add('hi');
+        }
+        function upBtn(){
+            var b=document.getElementById('genBtn'),h=document.getElementById('bHint');
+            var ok=pFile&&cFile;
+            b.disabled=!ok;
+            if(ok){h.textContent='آماده‌ست! کلیک کن';h.style.color='var(--ac)'}
+            else{var m=[];if(!pFile)m.push('عکس قدی');if(!cFile)m.push('عکس لباس');h.textContent='آپلود نشده: '+m.join(' و ');h.style.color='var(--bd)'}
+        }
+
+        /* ===== تولید — مستقیم بدون چک لاگین ===== */
+        function go(){
+            if(!pFile||!cFile)return;
+            var btn=document.getElementById('genBtn'),
+                ld=document.getElementById('loader'),
+                rs=document.getElementById('resSec'),
+                ts=document.getElementById('txtSec');
+            btn.disabled=true;rs.style.display='none';ts.style.display='none';
+            ld.classList.add('on');resUrl=null;
+            document.getElementById('lStep').textContent='در حال تحلیل تصاویر...';
+
+            /* مرحله ۱: تحلیل با GPT */
+            puter.ai.chat([
+                {role:'system',content:'You are a virtual try-on prompt engineer. Receive two images: a person and a clothing item. Create ONE detailed img2img prompt. Rules:\n- Describe clothing EXACTLY (color, type, cut, fabric, pattern, buttons, collar, sleeves, length, fit)\n- Keep face, hair, skin, body, pose, hands, background IDENTICAL\n- Photorealistic, studio lighting\n- Output ONLY English prompt, under 200 words'},
+                {role:'user',content:[
+                    {type:'text',text:'Person:'},
+                    {type:'image_url',image_url:{url:pUrl}},
+                    {type:'text',text:'Clothing:'},
+                    {type:'image_url',image_url:{url:cUrl}},
+                    {type:'text',text:'Generate img2img prompt.'}
+                ]}
+            ],{model:'gpt-4o-mini'}).then(function(resp){
+                var prompt=exTxt(resp);
+                if(!prompt||prompt.length<20)throw new Error('تحلیل تصاویر ناموفق');
+                document.getElementById('lStep').textContent='در حال تولید تصویر...';
+
+                /* مرحله ۲: img2img */
+                return puter.ai.img2img(prompt,pUrl).then(function(r){return exUrl(r)}).catch(function(e){
+                    console.warn('img2img fail:',e);
+                    return null;
+                }).then(function(url){
+                    if(url)return url;
+                    /* فال‌بک: txt2img */
+                    document.getElementById('lStep').textContent='تلاش روش جایگزین...';
+                    return puter.ai.txt2img(prompt+'. Full body, photorealistic, high quality.').then(function(r2){return exUrl(r2)}).catch(function(e2){console.warn('txt2img fail:',e2);return null});
+                }).then(function(url){
+                    if(url){
+                        resUrl=url;
+                        document.getElementById('resImg').src=url;
+                        rs.style.display='block';rs.classList.remove('fu');
+                        void rs.offsetWidth;rs.classList.add('fu');
+                        toast('تصویر ساخته شد','ok');
+                    }else{
+                        document.getElementById('txtRes').textContent=
+                            'تصویر تولید نشد اما پرامپت تحلیلی:\n\n'+prompt+
+                            '\n\nمی‌تونی ازش در Midjourney یا Stable Diffusion استفاده کنی.';
+                        ts.style.display='block';ts.classList.remove('fu');
+                        void ts.offsetWidth;ts.classList.add('fu');
+                        toast('تصویر تولید نشد — پرامپت نمایش داده شد','er');
+                    }
+                });
+            }).catch(function(err){
+                console.error(err);
+                toast(err&&err.message?err.message:'خطای ناشناخته','er');
+            }).finally(function(){
+                ld.classList.remove('on');btn.disabled=false;upBtn();
+            });
+        }
+
+        /* ===== استخراج URL ===== */
+        function exUrl(r){
+            if(!r)return null;
+            if(typeof r==='string'){
+                if(r.indexOf('http')===0||r.indexOf('data:image')===0)return r;
+                var m=r.match(/https?:\/\/[^\s"'<>]+\.(?:png|jpg|jpeg|webp|gif|bmp)(?:\?[^\s"'<>]*)?/i);
+                return m?m[0]:null;
+            }
+            var ks=['url','image','image_url','src','data','output','result','link'];
+            for(var i=0;i<ks.length;i++){
+                if(r[ks[i]]){
+                    if(typeof r[ks[i]]==='string'&&(r[ks[i]].indexOf('http')===0||r[ks[i]].indexOf('data:image')===0))return r[ks[i]];
+                    var s=exUrl(r[ks[i]]);if(s)return s;
+                }
+            }
+            if(r.message){
+                var c=r.message.content;
+                if(Array.isArray(c)){for(var j=0;j<c.length;j++){if(c[j].type==='image_url'&&c[j].image_url)return c[j].image_url.url;var s2=exUrl(c[j]);if(s2)return s2}}
+                if(typeof c==='string'){var m2=c.match(/https?:\/\/[^\s"'<>]+\.(?:png|jpg|jpeg|webp|gif|bmp)(?:\?[^\s"'<>]*)?/i);if(m2)return m2[0]}
+            }
+            if(Array.isArray(r)){for(var k=0;k<r.length;k++){var u=exUrl(r[k]);if(u)return u}}
+            try{var m3=JSON.stringify(r).match(/https?:\/\/[^\s"'<>]+\.(?:png|jpg|jpeg|webp|gif|bmp)(?:\?[^\s"'<>]*)?/i);return m3?m3[0]:null}catch(_){}
+            return null;
+        }
+
+        /* ===== استخراج متن ===== */
+        function exTxt(r){
+            if(!r)return'';
+            if(typeof r==='string')return r.trim();
+            if(r.message&&r.message.content){
+                var c=r.message.content;
+                if(typeof c==='string')return c.trim();
+                if(Array.isArray(c)){var p=[];for(var i=0;i<c.length;i++){if(c[i].type==='text')p.push(c[i].text)}return p.join(' ').trim()}
+            }
+            if(r.text)return String(r.text).trim();
+            if(r.content)return typeof r.content==='string'?r.content.trim():JSON.stringify(r.content);
+            return'';
+        }
+
+        /* ===== دانلود ===== */
+        function dl(){
+            if(!resUrl)return;
+            fetch(resUrl).then(function(r){return r.blob()}).then(function(b){
+                var u=URL.createObjectURL(b),a=document.createElement('a');
+                a.href=u;a.download='pro-labas-'+Date.now()+'.png';
+                document.body.appendChild(a);a.click();document.body.removeChild(a);
+                URL.revokeObjectURL(u);
+            }).catch(function(){toast('خطا در دانلود','er')});
+        }
+
+        /* ===== توست ===== */
+        function toast(m,t){
+            var e=document.getElementById('toast');
+            e.textContent=m;e.className='tst'+(t==='ok'?' ok':'');
+            if(tTmr)clearTimeout(tTmr);
+            requestAnimationFrame(function(){e.classList.add('sh');tTmr=setTimeout(function(){e.classList.remove('sh')},4500)});
+        }
+
+        /* ===== ذرات ===== */
+        (function(){
+            var c=document.getElementById('ptc'),n=Math.min(18,Math.floor(window.innerWidth/80));
+            for(var i=0;i<n;i++){
+                var p=document.createElement('div');p.className='pt';
+                p.style.left=Math.random()*100+'vw';p.style.top=Math.random()*100+'vh';
+                p.style.setProperty('--dx',(Math.random()*60-30)+'px');
+                p.style.setProperty('--dy',(-40-Math.random()*80)+'px');
+                var s=(1.5+Math.random()*2)+'px';p.style.width=s;p.style.height=s;
+                p.style.animation='pd '+(10+Math.random()*15)+'s '+(Math.random()*8)+'s ease-in-out infinite';
+                c.appendChild(p);
+            }
+        })();
+
+        /* ===== ایونت‌ها ===== */
+        document.getElementById('pZone').addEventListener('click',function(){upClick('person')});
+        document.getElementById('cZone').addEventListener('click',function(){upClick('cloth')});
+        document.getElementById('pIn').addEventListener('change',function(e){if(e.target.files[0])procFile(e.target.files[0],'person')});
+        document.getElementById('cIn').addEventListener('change',function(e){if(e.target.files[0])procFile(e.target.files[0],'cloth')});
+        document.getElementById('genBtn').addEventListener('click',go);
+        document.getElementById('dlBtn').addEventListener('click',dl);
+    </script>
+</body>
+</html>
