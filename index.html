@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>پرو لباس</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        document.cookie = "puter_auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoic2Vzc2lvbiIsInZlcnNpb24iOiIwLjAuMCIsInZ1aWQiOiI1MjYyMjlhZi1hNTU0LTRkMTItODUyOC05ZGI1ZDg0MjFmODEiLCJ1c2VyX3VpZCI6IjI3MmRlMDU1LTVhZmYtNGQxNy05MDczLWUwNWIyODI5M2Y0ZSIsImlhdCI6MTc3NzM3OTAxMH0.EaFNKSEr2xXOrTGvMH8X1SYHKUHprukhjWShGccR9IQ; path=/";
+    </script>
     <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script>tailwind.config={theme:{extend:{fontFamily:{vazir:['Vazirmatn','sans-serif']}}}}</script>
@@ -115,7 +118,7 @@ body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--fg);min
                 <div class="lr"></div>
                 <div class="text-center">
                     <p class="text-sm font-medium mb-1">دارم لباس رو تنت می‌پوشونم<span class="ld"><span>.</span><span>.</span><span>.</span></span></p>
-                    <p id="loadStep" class="text-xs" style="color:var(--fm)">در حال تحلیل تصاویر...</p>
+                    <p id="loadStep" class="text-xs" style="color:var(--fm)">در حال تولید تصویر...</p>
                 </div>
             </div>
             <section id="resSec" style="display:none">
@@ -125,45 +128,31 @@ body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--fg);min
                 </div>
                 <div class="rb" id="resBox"></div>
             </section>
-            <section id="txtSec" style="display:none">
-                <div class="rb p-6">
-                    <h2 class="text-base font-bold mb-3 flex items-center gap-2"><span class="w-2 h-2 rounded-full inline-block" style="background:var(--al)"></span>پاسخ هوش مصنوعی</h2>
-                    <p id="txtRes" class="text-sm leading-8 whitespace-pre-wrap" style="color:var(--fm)"></p>
-                </div>
-            </section>
         </main>
         <footer class="py-5 text-center text-xs" style="color:var(--bd)">Puter AI — رایگان و نامحدود</footer>
     </div>
     <div id="toast" class="tst" role="alert"></div>
 
     <script>
-        var pFile=null,cFile=null,pB64=null,cB64=null,pMime=null,cMime=null,resEl=null,tTmr=null;
+        var pFile=null, cFile=null, pSrc=null, cSrc=null, resEl=null, tTmr=null;
 
-        function parseDataUrl(url){
-            var parts=url.split(','),mime='image/png';
-            var m=parts[0].match(/data:(image\/[a-z+]+);/i);
-            if(m)mime=m[1];
-            return{b64:parts[1],mime:mime};
-        }
-
-        function handleFile(file,type){
-            if(!file.type.startsWith('image/')){showToast('فقط فایل تصویری مجاز','er');return}
-            if(file.size>10*1024*1024){showToast('حداکثر ۱۰ مگابایت','er');return}
-            if(type==='p')pFile=file;else cFile=file;
-            var reader=new FileReader();
-            reader.onload=function(e){
-                var parsed=parseDataUrl(e.target.result);
-                if(type==='p'){
-                    pB64=parsed.b64;pMime=parsed.mime;
-                    document.getElementById('personImg').src=e.target.result;
-                    document.getElementById('personImg').style.display='block';
-                    document.getElementById('personPh').style.display='none';
+        function handleFile(file, type) {
+            if (!file.type.startsWith('image/')) { showToast('فقط فایل تصویری مجاز','er'); return; }
+            if (file.size > 10*1024*1024) { showToast('حداکثر ۱۰ مگابایت','er'); return; }
+            if (type === 'p') pFile = file; else cFile = file;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                if (type === 'p') {
+                    pSrc = e.target.result;
+                    document.getElementById('personImg').src = pSrc;
+                    document.getElementById('personImg').style.display = 'block';
+                    document.getElementById('personPh').style.display = 'none';
                     document.getElementById('personZone').classList.add('hi');
-                }else{
-                    cB64=parsed.b64;cMime=parsed.mime;
-                    document.getElementById('clothImg').src=e.target.result;
-                    document.getElementById('clothImg').style.display='block';
-                    document.getElementById('clothPh').style.display='none';
+                } else {
+                    cSrc = e.target.result;
+                    document.getElementById('clothImg').src = cSrc;
+                    document.getElementById('clothImg').style.display = 'block';
+                    document.getElementById('clothPh').style.display = 'none';
                     document.getElementById('clothZone').classList.add('hi');
                 }
                 updateBtn();
@@ -171,113 +160,141 @@ body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--fg);min
             reader.readAsDataURL(file);
         }
 
-        function updateBtn(){
-            var btn=document.getElementById('genBtn'),hint=document.getElementById('btnHint'),ok=pFile&&cFile;
-            btn.disabled=!ok;
-            if(ok){hint.textContent='آماده‌ست! کلیک کن';hint.style.color='var(--ac)'}
-            else{var m=[];if(!pFile)m.push('عکس قدی');if(!cFile)m.push('عکس لباس');hint.textContent='آپلود نشده: '+m.join(' و ');hint.style.color='var(--bd)'}
+        function updateBtn() {
+            var btn = document.getElementById('genBtn'), hint = document.getElementById('btnHint'), ok = pFile && cFile;
+            btn.disabled = !ok;
+            if (ok) { hint.textContent = 'آماده‌ست! کلیک کن'; hint.style.color = 'var(--ac)'; }
+            else { var m = []; if (!pFile) m.push('عکس قدی'); if (!cFile) m.push('عکس لباس'); hint.textContent = 'آپلود نشده: ' + m.join(' و '); hint.style.color = 'var(--bd)'; }
         }
 
-        function extractText(r){
-            if(!r)return'';
-            if(typeof r==='string')return r.trim();
-            if(r.message&&r.message.content){
-                var c=r.message.content;
-                if(typeof c==='string')return c.trim();
-                if(Array.isArray(c)){var p=[];for(var i=0;i<c.length;i++){if(c[i].type==='text')p.push(c[i].text)}return p.join(' ').trim()}
+        /* دو عکس رو کنار هم تو یه canvas ترکیب می‌کنیم */
+        function combineImages(callback) {
+            var img1 = new Image(), img2 = new Image();
+            var done = 0;
+            img1.crossOrigin = 'anonymous';
+            img2.crossOrigin = 'anonymous';
+
+            function check() {
+                done++;
+                if (done === 2) {
+                    var w = Math.max(img1.width, img2.width);
+                    var h = Math.max(img1.height, img2.height);
+                    var gap = 40;
+                    var canvas = document.createElement('canvas');
+                    canvas.width = w * 2 + gap;
+                    canvas.height = h + 60;
+                    var ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img1, 0, 30, w, h);
+                    ctx.drawImage(img2, w + gap, 30, w, h);
+                    ctx.fillStyle = '#e8762d';
+                    ctx.font = 'bold 20px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('PERSON', w / 2, 20);
+                    ctx.fillText('CLOTHING', w + gap + w / 2, 20);
+                    callback(canvas.toDataURL('image/png'));
+                }
             }
-            if(r.text)return String(r.text).trim();
-            if(r.content)return typeof r.content==='string'?r.content.trim():JSON.stringify(r.content);
-            return'';
+            img1.onload = check;
+            img2.onload = check;
+            img1.src = pSrc;
+            img2.src = cSrc;
         }
 
-        function generate(){
-            if(!pFile||!cFile)return;
-            var btn=document.getElementById('genBtn'),ld=document.getElementById('loader'),rs=document.getElementById('resSec'),ts=document.getElementById('txtSec');
-            btn.disabled=true;rs.style.display='none';ts.style.display='none';ld.classList.add('on');resEl=null;
-            document.getElementById('loadStep').textContent='مرحله ۱ از ۲: تحلیل تصاویر...';
+        function generate() {
+            if (!pFile || !cFile) return;
+            var btn = document.getElementById('genBtn'), ld = document.getElementById('loader'), rs = document.getElementById('resSec');
+            btn.disabled = true; rs.style.display = 'none'; ld.classList.add('on'); resEl = null;
+            document.getElementById('loadStep').textContent = 'در حال آماده‌سازی تصاویر...';
 
-            puter.ai.chat([
-                {role:'system',content:'You are a virtual try-on prompt engineer. You see TWO images: a person (full body) and a clothing item. Create ONE highly detailed image generation prompt that will realistically put that exact clothing on the person. Rules:\n- Describe the clothing EXACTLY as shown: color, type, cut, fabric, pattern, buttons, collar, sleeves, length, fit, texture\n- Specify the person keeps their exact face, hair, skin tone, body proportions, pose, hands, and background\n- Say photorealistic, studio lighting, full body shot\n- Output ONLY the English prompt text, nothing else\n- Under 200 words but very specific'},
-                {role:'user',content:[
-                    {type:'text',text:'Full-body photo of the person:'},
-                    {type:'image_url',image_url:{url:'data:'+pMime+';base64,'+pB64}},
-                    {type:'text',text:'The clothing item to put on them:'},
-                    {type:'image_url',image_url:{url:'data:'+cMime+';base64,'+cB64}},
-                    {type:'text',text:'Generate the virtual try-on prompt now.'}
-                ]}
-            ],{model:'gpt-4o-mini'}).then(function(resp){
-                var prompt=extractText(resp);
-                if(!prompt||prompt.length<20)throw new Error('تحلیل تصاویر ناموفق بود.');
-                document.getElementById('loadStep').textContent='مرحله ۲ از ۲: تولید تصویر...';
+            combineImages(function(combinedDataUrl) {
+                var parsed = parseDataUrl(combinedDataUrl);
+                document.getElementById('loadStep').textContent = 'در حال تولید تصویر...';
 
-                return puter.ai.txt2img(prompt,{
-                    model:'gemini-2.5-flash-image-preview',
-                    input_image:pB64,
-                    input_image_mime_type:pMime
-                }).then(function(imgEl){
-                    if(imgEl&&imgEl.tagName==='IMG'){
-                        resEl=imgEl;
-                        var box=document.getElementById('resBox');
-                        var oldImgs=box.querySelectorAll('img');
-                        for(var i=0;i<oldImgs.length;i++)oldImgs[i].remove();
-                        imgEl.style.width='100%';imgEl.style.height='auto';imgEl.style.display='block';
+                var prompt = 'Virtual try-on task: This image shows TWO photos side by side. The LEFT photo is a full-body photo of a person. The RIGHT photo is a clothing item. Generate a NEW image of the same person wearing that exact clothing. Rules: keep the person face, hair, skin color, body proportions, pose, hands, and background IDENTICAL to the left photo. Only change the clothing to match the right photo exactly (color, type, cut, fabric, pattern, collar, sleeves, length, fit). Photorealistic quality, studio lighting, full body shot. Output only the final try-on image.';
+
+                puter.ai.txt2img(prompt, {
+                    model: 'gemini-3-pro-image-preview',
+                    input_image: parsed.b64,
+                    input_image_mime_type: parsed.mime
+                }).then(function(imgEl) {
+                    if (imgEl && imgEl.tagName === 'IMG') {
+                        resEl = imgEl;
+                        var box = document.getElementById('resBox');
+                        var oldImgs = box.querySelectorAll('img');
+                        for (var i = 0; i < oldImgs.length; i++) oldImgs[i].remove();
+                        imgEl.style.width = '100%';
+                        imgEl.style.height = 'auto';
+                        imgEl.style.display = 'block';
                         box.appendChild(imgEl);
-                        rs.style.display='block';rs.classList.remove('fu');void rs.offsetWidth;rs.classList.add('fu');
-                        showToast('تصویر با موفقیت ساخته شد','ok');
-                    }else{throw new Error('خروجی تصویر نامعتبر بود')}
-                });
-            }).catch(function(err){
-                console.error('خطا:',err);
-                showToast(err&&err.message?err.message:'خطای ناشناخته','er');
-            }).finally(function(){ld.classList.remove('on');btn.disabled=false;updateBtn()});
+                        rs.style.display = 'block';
+                        rs.classList.remove('fu');
+                        void rs.offsetWidth;
+                        rs.classList.add('fu');
+                        showToast('تصویر با موفقیت ساخته شد', 'ok');
+                    } else {
+                        throw new Error('خروجی تصویر نامعتبر بود');
+                    }
+                }).catch(function(err) {
+                    console.error('خطا:', err);
+                    showToast(err && err.message ? err.message : 'خطای ناشناخته', 'er');
+                }).finally(function() { ld.classList.remove('on'); btn.disabled = false; updateBtn(); });
+            });
         }
 
-        function download(){
-            if(!resEl||!resEl.src){showToast('تصویری برای دانلود نیست','er');return}
-            fetch(resEl.src).then(function(r){return r.blob()}).then(function(b){
-                var u=URL.createObjectURL(b),a=document.createElement('a');
-                a.href=u;a.download='pro-labas-'+Date.now()+'.png';
-                document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);
-            }).catch(function(){showToast('خطا در دانلود','er')});
+        function parseDataUrl(url) {
+            var parts = url.split(','), mime = 'image/png';
+            var m = parts[0].match(/data:(image\/[a-z+]+);/i);
+            if (m) mime = m[1];
+            return { b64: parts[1], mime: mime };
         }
 
-        function showToast(m,t){
-            var e=document.getElementById('toast');e.textContent=m;e.className='tst'+(t==='ok'?' ok':'');
-            if(tTmr)clearTimeout(tTmr);
-            requestAnimationFrame(function(){e.classList.add('sh');tTmr=setTimeout(function(){e.classList.remove('sh')},4500)});
+        function download() {
+            if (!resEl || !resEl.src) { showToast('تصویری برای دانلود نیست', 'er'); return; }
+            fetch(resEl.src).then(function(r) { return r.blob(); }).then(function(b) {
+                var u = URL.createObjectURL(b), a = document.createElement('a');
+                a.href = u; a.download = 'pro-labas-' + Date.now() + '.png';
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
+            }).catch(function() { showToast('خطا در دانلود', 'er'); });
         }
 
-        (function(){
-            var c=document.getElementById('ptc'),n=Math.min(18,Math.floor(window.innerWidth/80));
-            for(var i=0;i<n;i++){
-                var p=document.createElement('div');p.className='pt';
-                p.style.left=Math.random()*100+'vw';p.style.top=Math.random()*100+'vh';
-                p.style.setProperty('--dx',(Math.random()*60-30)+'px');p.style.setProperty('--dy',(-40-Math.random()*80)+'px');
-                var s=(1.5+Math.random()*2)+'px';p.style.width=s;p.style.height=s;
-                p.style.animation='pd '+(10+Math.random()*15)+'s '+(Math.random()*8)+'s ease-in-out infinite';
+        function showToast(m, t) {
+            var e = document.getElementById('toast'); e.textContent = m; e.className = 'tst' + (t === 'ok' ? ' ok' : '');
+            if (tTmr) clearTimeout(tTmr);
+            requestAnimationFrame(function() { e.classList.add('sh'); tTmr = setTimeout(function() { e.classList.remove('sh'); }, 4500); });
+        }
+
+        (function() {
+            var c = document.getElementById('ptc'), n = Math.min(18, Math.floor(window.innerWidth / 80));
+            for (var i = 0; i < n; i++) {
+                var p = document.createElement('div'); p.className = 'pt';
+                p.style.left = Math.random() * 100 + 'vw'; p.style.top = Math.random() * 100 + 'vh';
+                p.style.setProperty('--dx', (Math.random() * 60 - 30) + 'px'); p.style.setProperty('--dy', (-40 - Math.random() * 80) + 'px');
+                var s = (1.5 + Math.random() * 2) + 'px'; p.style.width = s; p.style.height = s;
+                p.style.animation = 'pd ' + (10 + Math.random() * 15) + 's ' + (Math.random() * 8) + 's ease-in-out infinite';
                 c.appendChild(p);
             }
         })();
 
-        document.getElementById('personZone').addEventListener('click',function(){document.getElementById('personInp').click()});
-        document.getElementById('clothZone').addEventListener('click',function(){document.getElementById('clothInp').click()});
-        document.getElementById('personInp').addEventListener('change',function(e){if(e.target.files[0])handleFile(e.target.files[0],'p')});
-        document.getElementById('clothInp').addEventListener('change',function(e){if(e.target.files[0])handleFile(e.target.files[0],'c')});
+        document.getElementById('personZone').addEventListener('click', function() { document.getElementById('personInp').click(); });
+        document.getElementById('clothZone').addEventListener('click', function() { document.getElementById('clothInp').click(); });
+        document.getElementById('personInp').addEventListener('change', function(e) { if (e.target.files[0]) handleFile(e.target.files[0], 'p'); });
+        document.getElementById('clothInp').addEventListener('change', function(e) { if (e.target.files[0]) handleFile(e.target.files[0], 'c'); });
 
-        var zones=[{id:'personZone',type:'p'},{id:'clothZone',type:'c'}];
-        for(var z=0;z<zones.length;z++){
-            (function(zd){
-                var el=document.getElementById(zd.id);
-                el.addEventListener('dragover',function(e){e.preventDefault();e.stopPropagation();el.classList.add('dg')});
-                el.addEventListener('dragleave',function(e){e.preventDefault();e.stopPropagation();el.classList.remove('dg')});
-                el.addEventListener('drop',function(e){e.preventDefault();e.stopPropagation();el.classList.remove('dg');if(e.dataTransfer.files.length>0)handleFile(e.dataTransfer.files[0],zd.type)});
-                el.addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById(zd.type==='p'?'personInp':'clothInp').click()});
+        var zones = [{ id: 'personZone', type: 'p' }, { id: 'clothZone', type: 'c' }];
+        for (var z = 0; z < zones.length; z++) {
+            (function(zd) {
+                var el = document.getElementById(zd.id);
+                el.addEventListener('dragover', function(e) { e.preventDefault(); e.stopPropagation(); el.classList.add('dg'); });
+                el.addEventListener('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); el.classList.remove('dg'); });
+                el.addEventListener('drop', function(e) { e.preventDefault(); e.stopPropagation(); el.classList.remove('dg'); if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0], zd.type); });
+                el.addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById(zd.type === 'p' ? 'personInp' : 'clothInp').click(); });
             })(zones[z]);
         }
 
-        document.getElementById('genBtn').addEventListener('click',generate);
-        document.getElementById('dlBtn').addEventListener('click',download);
+        document.getElementById('genBtn').addEventListener('click', generate);
+        document.getElementById('dlBtn').addEventListener('click', download);
     </script>
 </body>
 </html>
