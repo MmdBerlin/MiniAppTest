@@ -4,333 +4,235 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>پرو لباس</title>
-
-    <!-- لایه ۱: قبل از SDK — مسدود و فیک -->
-    <script>
-        var PT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZ3VpIiwidmVyc2lvbiI6IjAuMC4wIiwidXVpZCI6IjUyNjIyOWFmLWE1NTQtNGQxMi04NTI4LTlkYjVkODQyMWY4MSIsInVzZXJfdWlkIjoiMjcyZGUwNTUtNWFmZi00ZDE3LTkwNzMtZTA1YjI4MjkzZjRlIiwiaWF0IjoxNzc3MzgxMDE1fQ.bqn9wf3MGu1BqyKvOXun8R4IAwyeJDk7b2Swp3j92JI';
-        var _realOpen = window.open;
-        var _authMsgId = null;
-
-        /* مسدود کردن پاپ‌آپ با capture کردن msg_id */
-        Object.defineProperty(window, 'open', {
-            configurable: true,
-            value: function(url) {
-                if (typeof url === 'string' && url.indexOf('request_auth=true') !== -1) {
-                    var m = url.match(/msg_id=([^&]+)/);
-                    if (m) _authMsgId = m[1];
-                    /* فیک کردن پاسخ لاگین */
-                    setTimeout(function() {
-                        if (_authMsgId) {
-                            window.postMessage({
-                                msg_id: _authMsgId,
-                                success: true,
-                                token: PT_TOKEN,
-                                user: {
-                                    username: 'user',
-                                    name: 'کاربر',
-                                    email: 'user@puter.com'
-                                }
-                            }, 'https://puter.com');
-                        }
-                    }, 200);
-                    return null;
-                }
-                return _realOpen.apply(this, arguments);
-            }
-        });
-
-        /* تزریق توکن به fetch */
-        var _realFetch = window.fetch;
-        window.fetch = function(input, init) {
-            init = init || {};
-            var h = init.headers;
-            if (h instanceof Headers) { h.set('Authorization', 'Bearer ' + PT_TOKEN); }
-            else if (typeof h === 'object' && h !== null) { h['Authorization'] = 'Bearer ' + PT_TOKEN; }
-            else { init.headers = { 'Authorization': 'Bearer ' + PT_TOKEN }; }
-            return _realFetch.call(this, input, init);
-        };
-
-        /* تزریق توکن به XHR */
-        var _xhrOpen = XMLHttpRequest.prototype.open;
-        XMLHttpRequest.prototype.open = function() {
-            var r = _xhrOpen.apply(this, arguments);
-            try { this.setRequestHeader('Authorization', 'Bearer ' + PT_TOKEN); } catch(_) {}
-            return r;
-        };
-    </script>
-
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family/Vazirmatn:wght@300;500;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script>tailwind.config={theme:{extend:{fontFamily:{vazir:['Vazirmatn','sans-serif']}}}}</script>
     <style>
-:root{--bg:#09090b;--bgc:#131316;--bge:#1c1c20;--fg:#f0ece6;--fm:#7a7672;--ac:#e8762d;--al:#f5a623;--ag:rgba(232,118,45,.25);--bd:#27272a;--ok:#16a34a;--er:#dc2626}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;overflow-x:hidden}
-.atm{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 700px 500px at 15% 10%,rgba(232,118,45,.07),transparent),radial-gradient(ellipse 500px 600px at 85% 80%,rgba(245,166,35,.04),transparent)}
-.grd{background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:48px 48px}
-.uz{border:2px dashed var(--bd);border-radius:20px;background:var(--bgc);transition:all .35s cubic-bezier(.4,0,.2,1);cursor:pointer;position:relative;overflow:hidden}
-.uz::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,var(--ag),transparent 70%);opacity:0;transition:opacity .4s;pointer-events:none}
-.uz:hover{border-color:var(--ac)}.uz:hover::before{opacity:.3}
-.uz.dg{border-color:var(--ac);background:rgba(232,118,45,.04);box-shadow:0 0 40px var(--ag);transform:scale(1.01)}
-.uz.hi{border-style:solid;border-color:rgba(232,118,45,.25)}.uz.hi:hover{border-color:var(--ac)}
-.uz img.pv{width:100%;height:100%;object-fit:cover;border-radius:18px;position:absolute;inset:0}
-.uo{position:absolute;inset:0;background:rgba(9,9,11,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;border-radius:18px;z-index:2}
-.uz.hi:hover .uo{opacity:1}
-.bt{background:linear-gradient(135deg,var(--ac),#c85a18);color:#fff;font-family:'Vazirmatn',sans-serif;font-weight:800;font-size:1.1rem;padding:18px 56px;border:none;border-radius:16px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
-.bt::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);transition:left .6s}
-.bt:hover:not(:disabled)::before{left:100%}
-.bt:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 12px 40px var(--ag)}
-.bt:disabled{opacity:.3;cursor:not-allowed;filter:grayscale(.5)}
-.zl{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:var(--bge);border:1px solid var(--bd);border-radius:10px;font-size:.82rem;color:var(--fm);margin-bottom:12px}
-.zl i{color:var(--ac);font-size:.9rem}
-.mi{display:flex;align-items:center;justify-content:center;color:var(--fm);font-size:1.6rem;animation:pu 3s ease-in-out infinite}
-@keyframes pu{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.7;transform:scale(1.15)}}
-.lw{display:none}.lw.on{display:flex}
-.lr{width:56px;height:56px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:ro .9s linear infinite}
-.ld span{animation:db 1.4s infinite both;opacity:0}.ld span:nth-child(2){animation-delay:.2s}.ld span:nth-child(3){animation-delay:.4s}
-@keyframes db{0%,80%,100%{opacity:0}40%{opacity:1}}
-@keyframes ro{to{transform:rotate(360deg)}}
-@keyframes fu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.rb{border:1px solid var(--bd);border-radius:20px;background:var(--bgc);overflow:hidden;position:relative}
-.rb::before{content:'';position:absolute;top:-1px;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent)}
-.rb img{width:100%;height:auto;display:block}
-.tst{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--bge);border:1px solid var(--er);color:#fca5a5;padding:14px 28px;border-radius:14px;font-size:.88rem;z-index:9999;transition:transform .45s cubic-bezier(.4,0,.2,1);max-width:92vw;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.4)}
-.tst.sh{transform:translateX(-50%) translateY(0)}.tst.ok{border-color:var(--ok);color:#86efac}
-.dl{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:0 0;border:1px solid rgba(232,118,45,.35);color:var(--ac);border-radius:12px;font-family:'Vazirmatn',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .3s}
-.dl:hover{background:rgba(232,118,45,.08);border-color:var(--ac)}
-.pt{position:fixed;width:2px;height:2px;background:var(--ac);border-radius:50%;pointer-events:none;z-index:0;opacity:0}
-@keyframes pd{0%,100%{opacity:0;transform:translate(0,0)}20%{opacity:.35}50%{opacity:.15;transform:translate(var(--dx),var(--dy))}80%{opacity:.25}}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-@media(max-width:767px){.mi{transform:rotate(90deg);margin:-8px 0}}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Vazirmatn', sans-serif; background: #0a0a0b; color: #eee; min-height: 100vh; }
+        .upload-box {
+            border: 2px dashed #333; border-radius: 16px; background: #141416;
+            aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; position: relative; overflow: hidden; transition: all 0.3s;
+        }
+        .upload-box:hover { border-color: #dc2626; }
+        .upload-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+        .upload-box .overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.6);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .upload-box:hover .overlay { opacity: 1; }
+        .btn {
+            background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff;
+            font-family: 'Vazirmatn'; font-weight: 800; font-size: 1.1rem;
+            padding: 16px 48px; border: none; border-radius: 14px;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(220,38,38,0.3); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .spinner { width: 48px; height: 48px; border: 3px solid #333; border-top-color: #dc2626; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .result-box { border: 1px solid #27272a; border-radius: 16px; background: #141416; overflow: hidden; }
+        .result-box img { width: 100%; height: auto; display: block; }
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120px);
+            background: #1c1c20; border: 1px solid #dc2626; color: #fca5a5;
+            padding: 12px 24px; border-radius: 12px; font-size: 0.85rem;
+            z-index: 9999; transition: transform 0.4s; text-align: center;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.ok { border-color: #16a34a; color: #86efac; }
     </style>
 </head>
-<body class="grd">
-    <div class="atm"></div>
-    <div id="ptc" aria-hidden="true"></div>
-    <div class="relative z-10 min-h-screen flex flex-col">
-        <header class="pt-8 pb-4 px-6 text-center">
-            <div class="inline-flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--ac),#c85a18)">
-                    <i class="fas fa-tshirt text-white text-lg"></i>
-                </div>
-                <h1 class="text-3xl md:text-4xl font-black tracking-tight">
-                    <span style="color:var(--ac)">پرو</span><span>لباس</span>
-                </h1>
-            </div>
-            <p class="text-sm" style="color:var(--fm)">عکس قدی و لباس رو آپلود کن — هوش مصنوعی بقیه‌اش رو انجام میده</p>
-        </header>
-        <main class="flex-1 px-4 md:px-8 pb-16 max-w-5xl mx-auto w-full">
-            <section class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-6 items-center mb-10">
-                <div>
-                    <div class="zl"><i class="fas fa-user"></i><span>عکس قدی شما</span></div>
-                    <div id="personZone" class="uz aspect-[3/4] flex items-center justify-center" role="button" tabindex="0">
-                        <div id="personPh" class="text-center p-8 relative z-1">
-                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background:var(--bge);border:1px solid var(--bd)">
-                                <i class="fas fa-cloud-upload-alt text-2xl" style="color:var(--fm)"></i>
-                            </div>
-                            <p class="text-sm font-medium mb-1">عکس قدی خودت رو آپلود کن</p>
-                            <p class="text-xs" style="color:var(--fm)">بکش و رها کن یا کلیک کن</p>
-                            <p class="text-xs mt-2" style="color:var(--bd)">JPG, PNG — حداکثر ۱۰MB</p>
-                        </div>
-                        <img id="personImg" class="pv" src="" alt="" style="display:none">
-                        <div class="uo"><span class="text-sm text-white font-medium"><i class="fas fa-redo-alt ml-2"></i>تغییر عکس</span></div>
+<body>
+
+    <div style="max-width: 900px; margin: 0 auto; padding: 32px 16px;">
+
+        <h1 style="text-align:center; margin-bottom: 8px;">
+            <span style="color:#dc2626">پرو</span>لباس
+        </h1>
+        <p style="text-align:center; color:#666; margin-bottom: 40px; font-size: 0.9rem;">
+            عکس قدی و لباس رو آپلود کن تا هوش مصنوعی لباس رو تن بت بپوشونه
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
+            <div>
+                <p style="margin-bottom: 8px; color: #888; font-size: 0.8rem;">
+                    <i class="fas fa-user" style="color:#dc2626"></i> عکس قدی شما
+                </p>
+                <div class="upload-box" id="personBox" onclick="document.getElementById('personInput').click()">
+                    <div id="personEmpty" style="text-align:center;">
+                        <i class="fas fa-cloud-upload-alt" style="font-size:2rem; color:#555; margin-bottom:8px; display:block;"></i>
+                        <span style="color:#555; font-size:0.8rem;">کلیک یا بکش و رها کن</span>
                     </div>
-                    <input type="file" id="personInp" accept="image/jpeg,image/png,image/webp" class="hidden">
+                    <img id="personImg" style="display:none;">
+                    <div class="overlay"><span style="color:#fff; font-size:0.8rem;">تغییر عکس</span></div>
                 </div>
-                <div class="mi hidden md:flex flex-col items-center gap-2">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:var(--bge);border:1px solid var(--bd)">
-                        <i class="fas fa-plus" style="color:var(--ac)"></i>
-                    </div>
-                </div>
-                <div>
-                    <div class="zl"><i class="fas fa-tshirt"></i><span>عکس لباس</span></div>
-                    <div id="clothZone" class="uz aspect-[3/4] flex items-center justify-center" role="button" tabindex="0">
-                        <div id="clothPh" class="text-center p-8 relative z-1">
-                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background:var(--bge);border:1px solid var(--bd)">
-                                <i class="fas fa-cloud-upload-alt text-2xl" style="color:var(--fm)"></i>
-                            </div>
-                            <p class="text-sm font-medium mb-1">عکس لباس مورد نظرت</p>
-                            <p class="text-xs" style="color:var(--fm)">بکش و رها کن یا کلیک کن</p>
-                            <p class="text-xs mt-2" style="color:var(--bd)">JPG, PNG — حداکثر ۱۰MB</p>
-                        </div>
-                        <img id="clothImg" class="pv" src="" alt="" style="display:none">
-                        <div class="uo"><span class="text-sm text-white font-medium"><i class="fas fa-redo-alt ml-2"></i>تغییر عکس</span></div>
-                    </div>
-                    <input type="file" id="clothInp" accept="image/jpeg,image/png,image/webp" class="hidden">
-                </div>
-            </section>
-            <div class="text-center mb-10">
-                <button id="genBtn" class="bt" disabled><i class="fas fa-wand-magic-sparkles ml-2"></i>ساخت تصویر</button>
-                <p id="btnHint" class="text-xs mt-3" style="color:var(--bd)">ابتدا هر دو عکس را آپلود کنید</p>
+                <input type="file" id="personInput" accept="image/*" style="display:none" onchange="handleUpload(this,'person')">
             </div>
-            <div id="loader" class="lw flex-col items-center gap-5 mb-10" role="status">
-                <div class="lr"></div>
-                <div class="text-center">
-                    <p class="text-sm font-medium mb-1">دارم لباس رو تنت می‌پوشونم<span class="ld"><span>.</span><span>.</span><span>.</span></span></p>
-                    <p id="loadStep" class="text-xs" style="color:var(--fm)">در حال تولید تصویر...</p>
+            <div>
+                <p style="margin-bottom: 8px; color: #888; font-size: 0.8rem;">
+                    <i class="fas fa-tshirt" style="color:#dc2626"></i> عکس لباس
+                </p>
+                <div class="upload-box" id="clothBox" onclick="document.getElementById('clothInput').click()">
+                    <div id="clothEmpty" style="text-align:center;">
+                        <i class="fas fa-cloud-upload-alt" style="font-size:2rem; color:#555; margin-bottom:8px; display:block;"></i>
+                        <span style="color:#555; font-size:0.8rem;">کلیک یا بکش و رها کن</span>
+                    </div>
+                    <img id="clothImg" style="display:none;">
+                    <div class="overlay"><span style="color:#fff; font-size:0.8rem;">تغییر عکس</span></div>
                 </div>
+                <input type="file" id="clothInput" accept="image/*" style="display:none" onchange="handleUpload(this,'cloth')">
             </div>
-            <section id="resSec" style="display:none">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold flex items-center gap-2"><span class="w-2 h-2 rounded-full inline-block" style="background:var(--ac)"></span>نتیجه تست لباس</h2>
-                    <button class="dl" id="dlBtn"><i class="fas fa-download"></i><span>دانلود</span></button>
-                </div>
-                <div class="rb" id="resBox"></div>
-            </section>
-        </main>
-        <footer class="py-5 text-center text-xs" style="color:var(--bd)">Puter AI — رایگان و نامحدود</footer>
+        </div>
+
+        <div style="text-align:center; margin-bottom: 32px;">
+            <button class="btn" id="genBtn" disabled onclick="start()">
+                <i class="fas fa-wand-magic-sparkles" style="margin-left:8px;"></i>ساخت تصویر
+            </button>
+            <p id="hint" style="color:#444; font-size:0.75rem; margin-top:8px;">ابتدا هر دو عکس را آپلود کنید</p>
+        </div>
+
+        <div id="loading" style="display:none; text-align:center; padding: 40px;">
+            <div class="spinner" style="margin: 0 auto 16px;"></div>
+            <p id="status" style="color:#888; font-size:0.85rem;">...</p>
+        </div>
+
+        <div id="result" style="display:none;">
+            <p style="color:#888; font-size:0.8rem; margin-bottom:8px;">
+                <i class="fas fa-check-circle" style="color:#dc2626"></i> نتیجه
+            </p>
+            <div class="result-box">
+                <img id="resultImg" src="" alt="نتیجه">
+            </div>
+        </div>
+
     </div>
-    <div id="toast" class="tst" role="alert"></div>
+
+    <div id="toast" class="toast"></div>
 
     <script>
-        /* لایه ۲: بعد از لود SDK — خنثی کردن متدهای لاگین */
-        var _sdkReady = setInterval(function() {
-            if (typeof puter !== 'undefined') {
-                clearInterval(_sdkReady);
-                if (puter.auth) {
-                    puter.auth.signIn = function() { return Promise.resolve({}); };
-                    puter.auth.getUser = function() { return Promise.resolve({ username: 'user', name: 'کاربر' }); };
-                    puter.auth.signOut = function() { return Promise.resolve(); };
-                }
-            }
-        }, 50);
+        var personData = null;
+        var clothData = null;
 
-        var pFile = null, cFile = null, pSrc = null, cSrc = null, resEl = null, tTmr = null;
-
-        function handleFile(file, type) {
-            if (!file.type.startsWith('image/')) { showToast('فقط فایل تصویری مجاز', 'er'); return; }
-            if (file.size > 10 * 1024 * 1024) { showToast('حداکثر ۱۰ مگابایت', 'er'); return; }
-            if (type === 'p') pFile = file; else cFile = file;
+        function handleUpload(input, type) {
+            console.log('[آپلود] فایل انتخاب شد:', type, input.files[0].name);
+            if (!input.files[0]) return;
             var reader = new FileReader();
             reader.onload = function(e) {
-                if (type === 'p') {
-                    pSrc = e.target.result;
-                    document.getElementById('personImg').src = pSrc;
+                console.log('[آپلود] فایل خوانده شد برای:', type);
+                if (type === 'person') {
+                    personData = e.target.result;
+                    document.getElementById('personImg').src = personData;
                     document.getElementById('personImg').style.display = 'block';
-                    document.getElementById('personPh').style.display = 'none';
-                    document.getElementById('personZone').classList.add('hi');
+                    document.getElementById('personEmpty').style.display = 'none';
                 } else {
-                    cSrc = e.target.result;
-                    document.getElementById('clothImg').src = cSrc;
+                    clothData = e.target.result;
+                    document.getElementById('clothImg').src = clothData;
                     document.getElementById('clothImg').style.display = 'block';
-                    document.getElementById('clothPh').style.display = 'none';
-                    document.getElementById('clothZone').classList.add('hi');
+                    document.getElementById('clothEmpty').style.display = 'none';
                 }
-                updateBtn();
+                updateButton();
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(input.files[0]);
         }
 
-        function updateBtn() {
-            var btn = document.getElementById('genBtn'), hint = document.getElementById('btnHint'), ok = pFile && cFile;
-            btn.disabled = !ok;
-            if (ok) { hint.textContent = 'آماده‌ست! کلیک کن'; hint.style.color = 'var(--ac)'; }
-            else { var m = []; if (!pFile) m.push('عکس قدی'); if (!cFile) m.push('عکس لباس'); hint.textContent = 'آپلود نشده: ' + m.join(' و '); hint.style.color = 'var(--bd)'; }
+        function updateButton() {
+            var ready = personData && clothData;
+            document.getElementById('genBtn').disabled = !ready;
+            document.getElementById('hint').textContent = ready ? 'آماده‌ست!' : 'ابتدا هر دو عکس را آپلود کنید';
+            console.log('[وضعیت] دکمه:', ready ? 'فعال' : 'غیرفعال');
+        }
+
+        function getBase64(dataUrl) {
+            var parts = dataUrl.split(',');
+            var mime = 'image/png';
+            var m = parts[0].match(/data:(image\/[a-z+]+);/i);
+            if (m) mime = m[1];
+            return { base64: parts[1], mime: mime };
         }
 
         function combineImages(callback) {
-            var img1 = new Image(), img2 = new Image(), done = 0;
-            img1.crossOrigin = 'anonymous'; img2.crossOrigin = 'anonymous';
-            function check() {
-                done++;
-                if (done === 2) {
-                    var w = Math.max(img1.width, img2.width), h = Math.max(img1.height, img2.height), gap = 40;
-                    var canvas = document.createElement('canvas');
-                    canvas.width = w * 2 + gap; canvas.height = h + 60;
-                    var ctx = canvas.getContext('2d');
-                    ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img1, 0, 30, w, h); ctx.drawImage(img2, w + gap, 30, w, h);
-                    ctx.fillStyle = '#e8762d'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center';
-                    ctx.fillText('PERSON', w / 2, 20); ctx.fillText('CLOTHING', w + gap + w / 2, 20);
-                    callback(canvas.toDataURL('image/png'));
-                }
+            console.log('[ترکیب] شروع ترکیب دو عکس...');
+            var img1 = new Image(), img2 = new Image(), loaded = 0;
+            function done() {
+                loaded++;
+                if (loaded < 2) return;
+                console.log('[ترکیب] هر دو عکس لود شدند');
+                var w = Math.max(img1.width, img2.width), h = Math.max(img1.height, img2.height);
+                var canvas = document.createElement('canvas');
+                canvas.width = w * 2 + 40;
+                canvas.height = h + 50;
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img1, 0, 30, w, h);
+                ctx.drawImage(img2, w + 40, 30, w, h);
+                ctx.fillStyle = '#dc2626';
+                ctx.font = 'bold 18px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('PERSON', w / 2, 18);
+                ctx.fillText('CLOTHING', w + 40 + w / 2, 18);
+                var result = canvas.toDataURL('image/png');
+                console.log('[ترکیب] تکمیل — اندازه:', (result.length / 1024).toFixed(0), 'KB');
+                callback(result);
             }
-            img1.onload = check; img2.onload = check; img1.src = pSrc; img2.src = cSrc;
+            img1.onload = done;
+            img2.onload = done;
+            img1.src = personData;
+            img2.src = clothData;
         }
 
-        function generate() {
-            if (!pFile || !cFile) return;
-            var btn = document.getElementById('genBtn'), ld = document.getElementById('loader'), rs = document.getElementById('resSec');
-            btn.disabled = true; rs.style.display = 'none'; ld.classList.add('on'); resEl = null;
-            document.getElementById('loadStep').textContent = 'در حال آماده‌سازی تصاویر...';
+        function start() {
+            if (!personData || !clothData) return;
+            console.log('========================================');
+            console.log('[شروع] تولید تصویر');
+            console.log('========================================');
+            document.getElementById('genBtn').disabled = true;
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('status').textContent = 'آماده‌سازی تصاویر...';
+
             combineImages(function(combined) {
-                var parsed = parseDataUrl(combined);
-                document.getElementById('loadStep').textContent = 'در حال تولید تصویر...';
+                console.log('[مرحله ۱] ترکیب تکمیل');
+                var data = getBase64(combined);
+                document.getElementById('status').textContent = 'در حال تولید تصویر...';
+                console.log('[مرحله ۲] ارسال به gemini-3.1-flash-image-preview...');
+
                 puter.ai.txt2img(
-                    'Virtual try-on: This image shows TWO photos side by side. LEFT is a full-body person. RIGHT is a clothing item. Generate a NEW image of that same person wearing that exact clothing. Keep face, hair, skin, body, pose, hands, background IDENTICAL. Only change clothing to match right photo exactly. Photorealistic, studio lighting, full body.',
-                    { model: 'gemini-3-pro-image-preview', input_image: parsed.b64, input_image_mime_type: parsed.mime }
+                    'Virtual try-on: This image shows TWO photos side by side. LEFT labeled "PERSON" is a full-body person. RIGHT labeled "CLOTHING" is a clothing item. Generate a NEW image of that person wearing that clothing. Keep face, hair, skin, body, pose, hands, background IDENTICAL. Only change clothing to match right photo. Photorealistic, studio lighting, full body.',
+                    { model: 'gemini-3.1-flash-image-preview', input_image: data.base64, input_image_mime_type: data.mime }
                 ).then(function(imgEl) {
+                    console.log('[مرحله ۲] پاسخ دریافت شد:', imgEl ? imgEl.tagName : 'null');
                     if (imgEl && imgEl.tagName === 'IMG') {
-                        resEl = imgEl;
-                        var box = document.getElementById('resBox');
-                        var old = box.querySelectorAll('img');
-                        for (var i = 0; i < old.length; i++) old[i].remove();
-                        imgEl.style.width = '100%'; imgEl.style.height = 'auto'; imgEl.style.display = 'block';
-                        box.appendChild(imgEl);
-                        rs.style.display = 'block'; rs.classList.remove('fu'); void rs.offsetWidth; rs.classList.add('fu');
-                        showToast('تصویر با موفقیت ساخته شد', 'ok');
-                    } else { throw new Error('خروجی تصویر نامعتبر بود'); }
+                        console.log('[نتیجه] موفق');
+                        document.getElementById('resultImg').src = imgEl.src;
+                        document.getElementById('result').style.display = 'block';
+                        showToast('تصویر با موفقیت ساخته شد', true);
+                    } else {
+                        console.log('[خطا] خروجی تصویر نبود:', imgEl);
+                        showToast('خروجی تصویر نامعتبر بود');
+                    }
                 }).catch(function(err) {
-                    console.error('خطا:', err);
-                    showToast(err && err.message ? err.message : 'خطای ناشناخته', 'er');
-                }).finally(function() { ld.classList.remove('on'); btn.disabled = false; updateBtn(); });
+                    console.log('[خطا] API:', err.message || err);
+                    showToast(err.message || 'خطای ناشناخته');
+                }).finally(function() {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('genBtn').disabled = false;
+                    console.log('[پایان]');
+                });
             });
         }
 
-        function parseDataUrl(url) {
-            var parts = url.split(','), mime = 'image/png';
-            var m = parts[0].match(/data:(image\/[a-z+]+);/i);
-            if (m) mime = m[1];
-            return { b64: parts[1], mime: mime };
+        function showToast(msg, ok) {
+            var el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = 'toast' + (ok ? ' ok' : '');
+            el.classList.add('show');
+            setTimeout(function() { el.classList.remove('show'); }, 4000);
         }
-
-        function download() {
-            if (!resEl || !resEl.src) { showToast('تصویری برای دانلود نیست', 'er'); return; }
-            fetch(resEl.src).then(function(r) { return r.blob(); }).then(function(b) {
-                var u = URL.createObjectURL(b), a = document.createElement('a');
-                a.href = u; a.download = 'pro-labas-' + Date.now() + '.png';
-                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
-            }).catch(function() { showToast('خطا در دانلود', 'er'); });
-        }
-
-        function showToast(m, t) {
-            var e = document.getElementById('toast'); e.textContent = m; e.className = 'tst' + (t === 'ok' ? ' ok' : '');
-            if (tTmr) clearTimeout(tTmr);
-            requestAnimationFrame(function() { e.classList.add('sh'); tTmr = setTimeout(function() { e.classList.remove('sh'); }, 4500); });
-        }
-
-        (function() {
-            var c = document.getElementById('ptc'), n = Math.min(18, Math.floor(window.innerWidth / 80));
-            for (var i = 0; i < n; i++) {
-                var p = document.createElement('div'); p.className = 'pt';
-                p.style.left = Math.random() * 100 + 'vw'; p.style.top = Math.random() * 100 + 'vh';
-                p.style.setProperty('--dx', (Math.random() * 60 - 30) + 'px');
-                p.style.setProperty('--dy', (-40 - Math.random() * 80) + 'px');
-                var s = (1.5 + Math.random() * 2) + 'px'; p.style.width = s; p.style.height = s;
-                p.style.animation = 'pd ' + (10 + Math.random() * 15) + 's ' + (Math.random() * 8) + 's ease-in-out infinite';
-                c.appendChild(p);
-            }
-        })();
-
-        document.getElementById('personZone').addEventListener('click', function() { document.getElementById('personInp').click(); });
-        document.getElementById('clothZone').addEventListener('click', function() { document.getElementById('clothInp').click(); });
-        document.getElementById('personInp').addEventListener('change', function(e) { if (e.target.files[0]) handleFile(e.target.files[0], 'p'); });
-        document.getElementById('clothInp').addEventListener('change', function(e) { if (e.target.files[0]) handleFile(e.target.files[0], 'c'); });
-        var zones = [{ id: 'personZone', type: 'p' }, { id: 'clothZone', type: 'c' }];
-        for (var z = 0; z < zones.length; z++) {
-            (function(zd) {
-                var el = document.getElementById(zd.id);
-                el.addEventListener('dragover', function(e) { e.preventDefault(); e.stopPropagation(); el.classList.add('dg'); });
-                el.addEventListener('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); el.classList.remove('dg'); });
-                el.addEventListener('drop', function(e) { e.preventDefault(); e.stopPropagation(); el.classList.remove('dg'); if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0], zd.type); });
-                el.addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById(zd.type === 'p' ? 'personInp' : 'clothInp').click(); });
-            })(zones[z]);
-        }
-        document.getElementById('genBtn').addEventListener('click', generate);
-        document.getElementById('dlBtn').addEventListener('click', download);
     </script>
 </body>
 </html>
