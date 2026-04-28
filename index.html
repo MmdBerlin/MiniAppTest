@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پرو لباس آنلاین</title>
+    <title>پرو لباس</title>
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Vazirmatn:wght@400;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -53,8 +53,8 @@
         <h1 style="text-align:center; margin-bottom: 8px;">
             <span style="color:#dc2626">پرو</span>لباس
         </h1>
-        <p style="text-align:center; color:#666; margin-bottom: 40px; font-size: 0.9rem;">
-            قبل خرید، انلاین پرو کن!
+        <p style="text-align:center; color:#666; margin-bottom: 40px; font-size: 20rem;">
+            عکس قدی و لباس رو آپلود کن تا هوش مصنوعی لباس رو تن بت بپوشونه
         </p>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
@@ -120,9 +120,11 @@
         function handleUpload(input, type) {
             console.log('[آپلود] فایل انتخاب شد:', type, input.files[0].name);
             if (!input.files[0]) return;
+
             var reader = new FileReader();
             reader.onload = function(e) {
-                console.log('[آپلود] فایل خوانده شد برای:', type);
+                console.log('[آپلود] خوانده شد:', type, '- حجم:', (e.target.result.length / 1024).toFixed(0), 'KB');
+
                 if (type === 'person') {
                     personData = e.target.result;
                     document.getElementById('personImg').src = personData;
@@ -143,9 +145,10 @@
             var ready = personData && clothData;
             document.getElementById('genBtn').disabled = !ready;
             document.getElementById('hint').textContent = ready ? 'آماده‌ست!' : 'ابتدا هر دو عکس را آپلود کنید';
-            console.log('[وضعیت] دکمه:', ready ? 'فعال' : 'غیرفعال');
+            console.log('[وضعیت]', ready ? 'دکمه فعال' : 'منتظر آپلود عکس');
         }
 
+        // طبق مستندات: input_image = base64 خالص بدون data:image/... پیشوند
         function getBase64(dataUrl) {
             var parts = dataUrl.split(',');
             var mime = 'image/png';
@@ -154,31 +157,43 @@
             return { base64: parts[1], mime: mime };
         }
 
+        // ترکیب دو عکس کنار هم — طبق مستندات فقط یه input_image داریم
         function combineImages(callback) {
-            console.log('[ترکیب] شروع ترکیب دو عکس...');
+            console.log('[ترکیب] شروع ترکیب...');
             var img1 = new Image(), img2 = new Image(), loaded = 0;
+
             function done() {
                 loaded++;
                 if (loaded < 2) return;
                 console.log('[ترکیب] هر دو عکس لود شدند');
-                var w = Math.max(img1.width, img2.width), h = Math.max(img1.height, img2.height);
+
+                var w = Math.max(img1.width, img2.width);
+                var h = Math.max(img1.height, img2.height);
+
+                console.log('[ترکیب] ابعاد:', w, 'x', h);
+
                 var canvas = document.createElement('canvas');
-                canvas.width = w * 2 + 40;
-                canvas.height = h + 50;
+                canvas.width = w * 2 + 30;
+                canvas.height = h + 35;
                 var ctx = canvas.getContext('2d');
+
                 ctx.fillStyle = '#1a1a1a';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img1, 0, 30, w, h);
-                ctx.drawImage(img2, w + 40, 30, w, h);
+                ctx.drawImage(img1, 0, 25, w, h);
+                ctx.drawImage(img2, w + 30, 25, w, h);
+
                 ctx.fillStyle = '#dc2626';
-                ctx.font = 'bold 18px sans-serif';
+                ctx.font = 'bold 16px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('PERSON', w / 2, 18);
-                ctx.fillText('CLOTHING', w + 40 + w / 2, 18);
+                ctx.fillText('PERSON', w / 2, 14);
+                ctx.fillText('CLOTHING', w + 30 + w / 2, 14);
+
                 var result = canvas.toDataURL('image/png');
-                console.log('[ترکیب] تکمیل — اندازه:', (result.length / 1024).toFixed(0), 'KB');
+                console.log('[ترکیب] تکمیل — حجم:', (result.length / 1024).toFixed(0), 'KB');
+                console.log('[ترکیب] طول base64:', result.split(',')[1].substring(0, 50) + '...');
                 callback(result);
             }
+
             img1.onload = done;
             img2.onload = done;
             img1.src = personData;
@@ -190,6 +205,7 @@
             console.log('========================================');
             console.log('[شروع] تولید تصویر');
             console.log('========================================');
+
             document.getElementById('genBtn').disabled = true;
             document.getElementById('result').style.display = 'none';
             document.getElementById('loading').style.display = 'block';
@@ -199,24 +215,35 @@
                 console.log('[مرحله ۱] ترکیب تکمیل');
                 var data = getBase64(combined);
                 document.getElementById('status').textContent = 'در حال تولید تصویر...';
-                console.log('[مرحله ۲] ارسال به gemini-3.1-flash-image-preview...');
+                console.log('[مرحله ۲] مدل: gemini-2.5-flash-image-preview');
+                console.log('[مرحله ۲] mime:', data.mime);
+                console.log('[مرحله ۲] طول base64:', data.base64.length, 'کاراکتر');
 
                 puter.ai.txt2img(
-                    'Virtual try-on: This image shows TWO photos side by side. LEFT labeled "PERSON" is a full-body person. RIGHT labeled "CLOTHING" is a clothing item. Generate a NEW image of that person wearing that clothing. Keep face, hair, skin, body, pose, hands, background IDENTICAL. Only change clothing to match right photo. Photorealistic, studio lighting, full body.',
-                    { model: 'gemini-3.1-flash-image-preview', input_image: data.base64, input_image_mime_type: data.mime }
+                    'This image shows TWO photos side by side. LEFT is a full-body person photo. RIGHT is a clothing item. Generate a new image of that person wearing that clothing. Keep face, hair, skin, body, pose, and background identical. Only change the clothing. Photorealistic.',
+                    {
+                        model: 'gemini-2.5-flash-image-preview',
+                        input_image: data.base64,
+                        input_image_mime_type: data.mime
+                    }
                 ).then(function(imgEl) {
-                    console.log('[مرحله ۲] پاسخ دریافت شد:', imgEl ? imgEl.tagName : 'null');
+                    console.log('[مرحله ۲] پاسخ دریافت شد');
+                    console.log('[مرحله ۲] نوع:', typeof imgEl);
+                    console.log('[مرحله ۲] tagName:', imgEl ? imgEl.tagName : 'null');
+
                     if (imgEl && imgEl.tagName === 'IMG') {
-                        console.log('[نتیجه] موفق');
+                        console.log('[نتیجه] موفق — src:', imgEl.src.substring(0, 100) + '...');
                         document.getElementById('resultImg').src = imgEl.src;
                         document.getElementById('result').style.display = 'block';
                         showToast('تصویر با موفقیت ساخته شد', true);
                     } else {
-                        console.log('[خطا] خروجی تصویر نبود:', imgEl);
-                        showToast('خروجی تصویر نامعتبر بود');
+                        console.log('[خطا] خروجی تصویر نبود — نوع:', typeof imgEl);
+                        console.log('[خطا] محتوا:', imgEl);
+                        showToast('خروجی تصویر نامعتبر بود — به کنسول نگاه کن');
                     }
                 }).catch(function(err) {
-                    console.log('[خطا] API:', err.message || err);
+                    console.log('[خطا] ارسال به API');
+                    console.error(err);
                     showToast(err.message || 'خطای ناشناخته');
                 }).finally(function() {
                     document.getElementById('loading').style.display = 'none';
