@@ -1,281 +1,459 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پرو لباس</title>
-    <script src="https://js.puter.com/v2/"></script>
+    <title>Virtual Try-On</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;800&display=swap" rel="stylesheet">
+    <script src="https://js.puter.com/v2/"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['Space Grotesk', 'sans-serif'],
+                        body: ['DM Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
+        :root {
+            --teal-950: #031b1b;
+            --teal-500: #14b8a6;
+            --teal-600: #0f7272;
+            --teal-400: #2dd4bf;
+            --teal-200: #99f6e4;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Vazirmatn', sans-serif; background: #0a0a0b; color: #eee; min-height: 100vh; }
+        body { font-family: 'DM Sans', sans-serif; overflow: hidden; height: 100vh; background: #fff; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+
+        /* پنل موج */
+        .wave-panel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.95) saturate(1.1);
+        }
+
+        /* انیمیشن‌های نقطه‌های متن لودینگ */
+        @keyframes dotBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
+        .ld-dot {
+            display: inline-block;
+            animation: dotBounce 1.4s ease-in-out infinite;
+            color: var(--teal-200);
+        }
+        .ld-dot:nth-child(1) { animation-delay: 0s; }
+        .ld-dot:nth-child(2) { animation-delay: 0.15s; }
+
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 30px rgba(153,246,228,0.15); }
+            50% { text-shadow: 0 0 50px rgba(153,246,228,0.45), 0 0 90px rgba(20,184,166,0.15); }
+        }
+        .loading-glow { animation: textGlow 2.5s ease-in-out infinite; }
+
+        /* ترنزیشن حالت‌ها */
+        .view-state { transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s cubic-bezier(0.4,0,0.2,1); }
+        .view-state.is-hidden { opacity:0; pointer-events:none; transform:translateY(12px) scale(0.98); position:absolute; inset:0; }
+        .view-state.is-visible { opacity:1; pointer-events:all; transform:translateY(0) scale(1); }
+
+        .loading-overlay { transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1); }
+        .loading-overlay.is-hidden { opacity:0; pointer-events:none; }
+        .loading-overlay.is-visible { opacity:1; pointer-events:all; }
+
+        /* باکس آپلود */
         .upload-box {
-            border: 2px dashed #333; border-radius: 16px; background: #141416;
-            aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; position: relative; overflow: hidden; transition: all 0.3s;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: #f8fafc;
         }
-        .upload-box:hover { border-color: #e8762d; }
-        .upload-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
-        .upload-box .overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.6);
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.3s;
+        .upload-box:hover {
+            border-color: var(--teal-500);
+            background: rgba(20,184,166,0.04);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(20,184,166,0.08);
         }
-        .upload-box:hover .overlay { opacity: 1; }
-        .btn {
-            background: linear-gradient(135deg, #e8762d, #c85a18); color: #fff;
-            font-family: 'Vazirmatn'; font-weight: 800; font-size: 1.1rem;
-            padding: 16px 48px; border: none; border-radius: 14px;
-            cursor: pointer; transition: all 0.3s;
+        .upload-box.has-image { border-style: solid; border-color: var(--teal-500); background: #fff; }
+        .upload-box.has-image:hover { border-color: var(--teal-600); }
+        .upload-box img { width:100%; height:100%; object-fit:cover; border-radius:14px; }
+
+        /* دکمه‌ها */
+        .btn-primary {
+            background:#1a1a2e; color:#fff; border:none; padding:14px 32px; border-radius:12px;
+            font-size:15px; font-weight:600; font-family:'Space Grotesk',sans-serif;
+            cursor:pointer; transition:all 0.3s ease; display:inline-flex; align-items:center; gap:10px;
         }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(232,118,45,0.3); }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .spinner { width: 48px; height: 48px; border: 3px solid #333; border-top-color: #e8762d; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .result-box { border: 1px solid #27272a; border-radius: 16px; background: #141416; overflow: hidden; }
-        .result-box img { width: 100%; height: auto; display: block; }
-        .toast {
-            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120px);
-            background: #1c1c20; border: 1px solid #dc2626; color: #fca5a5;
-            padding: 12px 24px; border-radius: 12px; font-size: 0.85rem;
-            z-index: 9999; transition: transform 0.4s; text-align: center;
+        .btn-primary:hover:not(:disabled) { background:#2a2a4e; transform:translateY(-2px); box-shadow:0 8px 28px rgba(26,26,46,0.3); }
+        .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+
+        .btn-teal {
+            background:var(--teal-500); color:#fff; border:none; padding:14px 32px; border-radius:12px;
+            font-size:15px; font-weight:600; font-family:'Space Grotesk',sans-serif;
+            cursor:pointer; transition:all 0.3s ease; display:inline-flex; align-items:center; gap:10px;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.ok { border-color: #16a34a; color: #86efac; }
+        .btn-teal:hover { background:var(--teal-600); transform:translateY(-2px); box-shadow:0 8px 28px rgba(20,184,166,0.35); }
+
+        /* فریم نتیجه */
+        .result-frame { background:#f1f5f9; border-radius:16px; overflow:hidden; }
+        .result-frame img { width:100%; height:100%; object-fit:contain; }
+
+        /* فید این */
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+        .anim-in { animation:fadeInUp 0.55s ease forwards; }
+        .anim-in-d1 { animation:fadeInUp 0.55s ease 0.1s forwards; opacity:0; }
+        .anim-in-d2 { animation:fadeInUp 0.55s ease 0.2s forwards; opacity:0; }
+
+        /* دکمه حذف */
+        .remove-btn {
+            position:absolute; top:8px; right:8px; width:28px; height:28px;
+            background:rgba(0,0,0,0.6); border:none; border-radius:50%; color:#fff;
+            display:flex; align-items:center; justify-content:center; cursor:pointer;
+            transition:background 0.2s; z-index:2;
+        }
+        .remove-btn:hover { background:rgba(0,0,0,0.85); }
+
+        /* toast خطا */
+        .error-toast { transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
+
+        /* لودینگ اورلی بکگراند */
+        .loading-bg-img {
+            width:100%; height:100%; object-fit:cover; position:absolute; inset:0;
+            filter: brightness(0.4) saturate(1.2);
+        }
+
+        @media (max-width: 768px) {
+            .wave-panel { display: none; }
+            .content-area { width: 100% !important; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div style="max-width: 900px; margin: 0 auto; padding: 32px 16px;">
+<div id="app" class="flex h-screen w-screen">
 
-        <h1 style="text-align:center; margin-bottom: 8px;">
-            <span style="color:#e8762d">پرو</span>لباس
-        </h1>
-        <p style="text-align:center; color:#666; margin-bottom: 40px; font-size: 0.9rem;">
-            عکس قدی و لباس رو آپلود کن تا هوش مصنوعی لباس رو تن بت بپوشونه
-        </p>
+    <!-- ===== پنل موج سمت چپ — مسیر عکس رو اینجا تغییر بده ===== -->
+    <aside class="wave-panel w-[42%] flex-shrink-0 overflow-hidden relative" style="background: var(--teal-950);">
+        <img src="./waves-bg.jpg" alt="" aria-hidden="true">
+    </aside>
 
-        <!-- آپلود -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
-            <div>
-                <p style="margin-bottom: 8px; color: #888; font-size: 0.8rem;">
-                    <i class="fas fa-user" style="color:#e8762d"></i> عکس قدی شما
-                </p>
-                <div class="upload-box" id="personBox" onclick="document.getElementById('personInput').click()">
-                    <div id="personEmpty" style="text-align:center;">
-                        <i class="fas fa-cloud-upload-alt" style="font-size:2rem; color:#555; margin-bottom:8px; display:block;"></i>
-                        <span style="color:#555; font-size:0.8rem;">کلیک یا بکش و رها کن</span>
-                    </div>
-                    <img id="personImg" style="display:none;">
-                    <div class="overlay"><span style="color:#fff; font-size:0.8rem;">تغییر عکس</span></div>
+    <!-- ===== پنل محتوا ===== -->
+    <main class="content-area flex-1 bg-white relative flex items-center justify-center overflow-hidden">
+
+        <!-- حالت آپلود -->
+        <div id="uploadView" class="view-state is-visible w-full px-8 sm:px-14 max-w-2xl mx-auto">
+            <h1 class="font-heading text-4xl sm:text-5xl font-bold text-gray-900 mb-10 anim-in tracking-tight">Try it on!</h1>
+            <div class="flex items-stretch gap-4 mb-10 anim-in-d1">
+                <div id="clothingBox" class="upload-box flex-1 h-48 sm:h-56 flex flex-col items-center justify-center" role="button" tabindex="0" aria-label="Upload clothing image">
+                    <i class="fa-solid fa-shirt text-3xl text-gray-300 mb-3"></i>
+                    <span class="text-gray-400 text-sm font-medium">Upload Clothing</span>
                 </div>
-                <input type="file" id="personInput" accept="image/*" style="display:none" onchange="handleUpload(this,'person')">
+                <div class="flex-shrink-0 flex items-center">
+                    <div class="w-11 h-11 rounded-full bg-gray-900 flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-plus text-white text-sm"></i>
+                    </div>
+                </div>
+                <div id="personBox" class="upload-box flex-1 h-48 sm:h-56 flex flex-col items-center justify-center" role="button" tabindex="0" aria-label="Upload your photo">
+                    <i class="fa-solid fa-person text-3xl text-gray-300 mb-3"></i>
+                    <span class="text-gray-400 text-sm font-medium">Upload Your Photo</span>
+                </div>
             </div>
-            <div>
-                <p style="margin-bottom: 8px; color: #888; font-size: 0.8rem;">
-                    <i class="fas fa-tshirt" style="color:#e8762d"></i> عکس لباس
-                </p>
-                <div class="upload-box" id="clothBox" onclick="document.getElementById('clothInput').click()">
-                    <div id="clothEmpty" style="text-align:center;">
-                        <i class="fas fa-cloud-upload-alt" style="font-size:2rem; color:#555; margin-bottom:8px; display:block;"></i>
-                        <span style="color:#555; font-size:0.8rem;">کلیک یا بکش و رها کن</span>
-                    </div>
-                    <img id="clothImg" style="display:none;">
-                    <div class="overlay"><span style="color:#fff; font-size:0.8rem;">تغییر عکس</span></div>
-                </div>
-                <input type="file" id="clothInput" accept="image/*" style="display:none" onchange="handleUpload(this,'cloth')">
+            <div class="flex justify-end anim-in-d2">
+                <button id="generateBtn" class="btn-primary" disabled>
+                    Generate <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
             </div>
         </div>
 
-        <!-- دکمه -->
-        <div style="text-align:center; margin-bottom: 32px;">
-            <button class="btn" id="genBtn" disabled onclick="start()">
-                <i class="fas fa-wand-magic-sparkles" style="margin-left:8px;"></i>ساخت تصویر
-            </button>
-            <p id="hint" style="color:#444; font-size:0.75rem; margin-top:8px;">ابتدا هر دو عکس را آپلود کنید</p>
+        <!-- حالت نتیجه -->
+        <div id="resultView" class="view-state is-hidden w-full px-8 sm:px-14 max-w-2xl mx-auto">
+            <h1 class="font-heading text-3xl sm:text-4xl font-bold text-gray-900 mb-8 tracking-tight">Your style is Ready!</h1>
+            <div class="result-frame h-72 sm:h-80 mb-8">
+                <img id="resultImage" src="" alt="Virtual try-on result">
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button id="backBtn" class="btn-primary"><i class="fa-solid fa-arrow-left text-sm"></i> Back</button>
+                <button id="downloadBtn" class="btn-teal"><i class="fa-solid fa-download text-sm"></i> Download</button>
+            </div>
         </div>
 
-        <!-- لودینگ -->
-        <div id="loading" style="display:none; text-align:center; padding: 40px;">
-            <div class="spinner" style="margin: 0 auto 16px;"></div>
-            <p id="status" style="color:#888; font-size:0.85rem;">...</p>
-        </div>
+    </main>
 
-        <!-- نتیجه -->
-        <div id="result" style="display:none;">
-            <p style="color:#888; font-size:0.8rem; margin-bottom:8px;">
-                <i class="fas fa-check-circle" style="color:#e8762d"></i> نتیجه
+    <!-- ===== اورلی لودینگ ===== -->
+    <div id="loadingOverlay" class="loading-overlay is-hidden fixed inset-0 z-50" style="background: var(--teal-950);">
+        <!-- بکگراند عکس موج — مسیر عکس رو اینجا تغییر بده -->
+        <img class="loading-bg-img" src="./—Pngtree—layered teal ocean wave digital_16573891.jpg" alt="" aria-hidden="true">
+        <!-- اورلی تیره -->
+        <div class="absolute inset-0" style="background: rgba(3,27,27,0.6);"></div>
+        <!-- متن لودینگ -->
+        <div class="relative z-10 flex flex-col items-center justify-center h-full select-none">
+            <p class="loading-glow text-white text-2xl sm:text-3xl font-heading font-light tracking-widest">
+                Please Wait<span class="ld-dot">.</span><span class="ld-dot">.</span>
             </p>
-            <div class="result-box">
-                <img id="resultImg" src="" alt="نتیجه">
-            </div>
         </div>
-
     </div>
 
-    <div id="toast" class="toast"></div>
+    <!-- toast خطا -->
+    <div id="errorToast" class="error-toast fixed top-5 right-5 bg-red-500/95 backdrop-blur text-white px-6 py-3 rounded-xl shadow-2xl z-[60] flex items-center gap-3" style="transform:translateX(140%);">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="errorText" class="text-sm font-medium"></span>
+    </div>
 
-    <script>
-        // ===== متغیرها =====
-        var personData = null;
-        var clothData = null;
+</div>
 
-        // ===== آپلود عکس =====
-        function handleUpload(input, type) {
-            console.log('[آپلود] فایل انتخاب شد:', type, input.files[0].name);
+<input type="file" id="clothingInput" accept="image/*" class="hidden">
+<input type="file" id="personInput" accept="image/*" class="hidden">
 
-            if (!input.files[0]) return;
+<script>
+    // =============================================
+    //  مسیر عکس پس‌زمینه موج — اینجا آدرس عکس خودت رو بذار
+    // =============================================
+    const WAVE_BG_PATH = './waves-bg.jpg';
 
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                console.log('[آپلود] فایل خوانده شد برای:', type);
+    // اعمال مسیر به هر دو جای استفاده
+    document.querySelector('.wave-panel img').src = WAVE_BG_PATH;
+    document.querySelector('.loading-bg-img').src = WAVE_BG_PATH;
 
-                if (type === 'person') {
-                    personData = e.target.result;
-                    document.getElementById('personImg').src = personData;
-                    document.getElementById('personImg').style.display = 'block';
-                    document.getElementById('personEmpty').style.display = 'none';
-                } else {
-                    clothData = e.target.result;
-                    document.getElementById('clothImg').src = clothData;
-                    document.getElementById('clothImg').style.display = 'block';
-                    document.getElementById('clothEmpty').style.display = 'none';
-                }
-                updateButton();
+    // ===================== متغیرهای حالت =====================
+    let clothingImg = null;
+    let personImg = null;
+    let resultDataUrl = null;
+
+    // ===================== المان‌های DOM =====================
+    const clothingBox = document.getElementById('clothingBox');
+    const personBox = document.getElementById('personBox');
+    const clothingInput = document.getElementById('clothingInput');
+    const personInput = document.getElementById('personInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const uploadView = document.getElementById('uploadView');
+    const resultView = document.getElementById('resultView');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const resultImage = document.getElementById('resultImage');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const backBtn = document.getElementById('backBtn');
+    const errorToast = document.getElementById('errorToast');
+    const errorText = document.getElementById('errorText');
+
+    // ===================== هندلر آپلود =====================
+    clothingBox.addEventListener('click', () => clothingInput.click());
+    personBox.addEventListener('click', () => personInput.click());
+    clothingBox.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') clothingInput.click(); });
+    personBox.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') personInput.click(); });
+
+    clothingInput.addEventListener('change', e => processFile(e.target.files[0], 'clothing'));
+    personInput.addEventListener('change', e => processFile(e.target.files[0], 'person'));
+
+    // درگ اند دراپ
+    [clothingBox, personBox].forEach((box, idx) => {
+        const type = idx === 0 ? 'clothing' : 'person';
+        box.addEventListener('dragover', e => { e.preventDefault(); box.style.borderColor='var(--teal-500)'; box.style.background='rgba(20,184,166,0.06)'; });
+        box.addEventListener('dragleave', () => { const img = type==='clothing'?clothingImg:personImg; if(!img){box.style.borderColor='';box.style.background='';} });
+        box.addEventListener('drop', e => { e.preventDefault(); const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/')) processFile(f,type); });
+    });
+
+    function processFile(file, type) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const url = ev.target.result;
+            const img = new Image();
+            img.onload = () => {
+                if (type === 'clothing') { clothingImg = img; fillBox(clothingBox, url, 'clothing'); }
+                else { personImg = img; fillBox(personBox, url, 'person'); }
+                refreshBtn();
             };
-            reader.readAsDataURL(input.files[0]);
-        }
+            img.src = url;
+        };
+        reader.readAsDataURL(file);
+    }
 
-        // ===== فعال/غیرفعال دکمه =====
-        function updateButton() {
-            var ready = personData && clothData;
-            document.getElementById('genBtn').disabled = !ready;
-            document.getElementById('hint').textContent = ready
-                ? 'آماده‌ست!'
-                : 'ابتدا هر دو عکس را آپلود کنید';
-            console.log('[وضعیت] دکمه:', ready ? 'فعال' : 'غیرفعال');
-        }
+    function fillBox(box, url, type) {
+        box.classList.add('has-image');
+        box.innerHTML = `<img src="${url}" alt="${type==='clothing'?'Clothing':'Your photo'}"><button class="remove-btn" aria-label="Remove"><i class="fa-solid fa-xmark text-xs"></i></button>`;
+        box.querySelector('.remove-btn').addEventListener('click', e => {
+            e.stopPropagation();
+            if (type === 'clothing') { clothingImg = null; clothingInput.value = ''; resetBox(clothingBox, 'fa-solid fa-shirt', 'Upload Clothing'); }
+            else { personImg = null; personInput.value = ''; resetBox(personBox, 'fa-solid fa-person', 'Upload Your Photo'); }
+            refreshBtn();
+        });
+    }
 
-        // ===== جدا کردن base64 خالص از dataURL =====
-        function getBase64(dataUrl) {
-            var parts = dataUrl.split(',');
-            var mime = 'image/png';
-            var m = parts[0].match(/data:(image\/[a-z+]+);/i);
-            if (m) mime = m[1];
-            return { base64: parts[1], mime: mime };
-        }
+    function resetBox(box, icon, label) {
+        box.classList.remove('has-image');
+        box.style.borderColor = ''; box.style.background = '';
+        box.innerHTML = `<i class="${icon} text-3xl text-gray-300 mb-3"></i><span class="text-gray-400 text-sm font-medium">${label}</span>`;
+    }
 
-        // ===== ترکیب دو عکس کنار هم =====
-        function combineImages(callback) {
-            console.log('[ترکیب] شروع ترکیب دو عکس...');
+    function refreshBtn() { generateBtn.disabled = !(clothingImg && personImg); }
 
-            var img1 = new Image();
-            var img2 = new Image();
-            var loaded = 0;
+    // ===================== ترکیب عکس‌ها روی کنواس =====================
+    function combineOnCanvas() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const maxW = 1024, pad = 20, gap = 50;
+        const halfW = (maxW - pad * 2 - gap) / 2;
+        const maxImgH = 768 - pad * 2;
 
-            function done() {
-                loaded++;
-                if (loaded < 2) return;
+        const cR = clothingImg.width / Math.max(1, clothingImg.height);
+        let cW = halfW, cH = halfW / cR;
+        if (cH > maxImgH) { cH = maxImgH; cW = cH * cR; }
 
-                console.log('[ترکیب] هر دو عکس لود شدند');
+        const pR = personImg.width / Math.max(1, personImg.height);
+        let pW = halfW, pH = halfW / pR;
+        if (pH > maxImgH) { pH = maxImgH; pW = pH * pR; }
 
-                var w = Math.max(img1.width, img2.width);
-                var h = Math.max(img1.height, img2.height);
+        const totalH = Math.max(cH, pH) + pad * 2;
+        canvas.width = maxW;
+        canvas.height = Math.round(totalH);
 
-                var canvas = document.createElement('canvas');
-                canvas.width = w * 2 + 40;
-                canvas.height = h + 50;
-                var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // پس‌زمینه
-                ctx.fillStyle = '#1a1a1a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // لباس
+        ctx.save();
+        const cX = pad + (halfW - cW) / 2, cY = pad + (totalH - pad * 2 - cH) / 2;
+        rRect(ctx, cX, cY, cW, cH, 10); ctx.clip();
+        ctx.drawImage(clothingImg, cX, cY, cW, cH);
+        ctx.restore();
 
-                // عکس‌ها
-                ctx.drawImage(img1, 0, 30, w, h);
-                ctx.drawImage(img2, w + 40, 30, w, h);
+        // +
+        ctx.save();
+        ctx.fillStyle = '#334155';
+        ctx.font = 'bold 36px Space Grotesk, sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('+', pad + halfW + gap / 2, totalH / 2);
+        ctx.restore();
 
-                // برچسب‌ها
-                ctx.fillStyle = '#e8762d';
-                ctx.font = 'bold 18px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('PERSON', w / 2, 18);
-                ctx.fillText('CLOTHING', w + 40 + w / 2, 18);
+        // کاربر
+        ctx.save();
+        const pX = pad + halfW + gap + (halfW - pW) / 2, pY = pad + (totalH - pad * 2 - pH) / 2;
+        rRect(ctx, pX, pY, pW, pH, 10); ctx.clip();
+        ctx.drawImage(personImg, pX, pY, pW, pH);
+        ctx.restore();
 
-                var result = canvas.toDataURL('image/png');
-                console.log('[ترکیب] ترکیب تکمیل شد — اندازه:', (result.length / 1024).toFixed(0), 'KB');
-                callback(result);
-            }
+        return canvas.toDataURL('image/png', 0.92);
+    }
 
-            img1.onload = done;
-            img2.onload = done;
-            img1.src = personData;
-            img2.src = clothData;
-        }
+    function rRect(ctx, x, y, w, h, r) {
+        r = Math.min(r, w/2, h/2);
+        ctx.beginPath();
+        ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y);
+        ctx.quadraticCurveTo(x+w, y, x+w, y+r); ctx.lineTo(x+w, y+h-r);
+        ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h); ctx.lineTo(x+r, y+h);
+        ctx.quadraticCurveTo(x, y+h, x, y+h-r); ctx.lineTo(x, y+r);
+        ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath();
+    }
 
-        // ===== شروع تولید =====
-        function start() {
-            if (!personData || !clothData) return;
+    // ===================== ارسال به هوش مصنوعی =====================
+    generateBtn.addEventListener('click', async () => {
+        if (!clothingImg || !personImg) return;
+        showState('loading');
+        try {
+            const combined = combineOnCanvas();
+            const prompt = `You are an expert virtual try-on AI. Look at this combined image: the LEFT side shows a piece of clothing/garment, and the RIGHT side (after the + sign) shows a full-body photo of a person. Generate a NEW realistic photograph showing this exact person wearing this exact clothing item. Crucial rules: 1) Keep the person's face, hairstyle, skin tone, body proportions, and pose identical to their photo. 2) Keep the original background. 3) Only replace their current outfit with the provided garment. 4) Make the fit look natural and realistic - proper sizing, draping, shadows, and wrinkles. 5) The output must look like a real photograph, not a collage or illustration. Generate the result image now.`;
 
-            console.log('========================================');
-            console.log('[شروع] تولید تصویر شروع شد');
-            console.log('========================================');
-
-            document.getElementById('genBtn').disabled = true;
-            document.getElementById('result').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('status').textContent = 'آماده‌سازی تصاویر...';
-
-            // مرحله ۱: ترکیب عکس‌ها
-            combineImages(function(combined) {
-                console.log('[مرحله ۱] ترکیب عکس‌ها — تکمیل');
-
-                var data = getBase64(combined);
-                console.log('[مرحله ۱] base64 استخراج شد — mime:', data.mime);
-
-                // مرحله ۲: فرستادن به هوش مصنوعی
-                document.getElementById('status').textContent = 'در حال تولید تصویر با هوش مصنوعی...';
-                console.log('[مرحله ۲] ارسال درخواست به gemini-3.1-flash-image-preview...');
-
-                var prompt = 'Virtual try-on task: This image shows TWO photos side by side. The LEFT photo labeled "PERSON" is a full-body photo of a person. The RIGHT photo labeled "CLOTHING" is a clothing item. Your task: Generate a NEW single image of that exact same person wearing that exact clothing item. Important rules: Keep the persons face, hair, skin color, body shape, pose, hands, and background completely IDENTICAL to the left photo. Only change the clothing to exactly match what is shown in the right photo (same color, type, cut, fabric, pattern, collar, sleeves, length, fit). Make it photorealistic with studio lighting. Show the full body. Output only the final try-on image.';
-
-                puter.ai.txt2img(prompt, {
-                    model: 'gemini-3.1-flash-image-preview',
-                    input_image: data.base64,
-                    input_image_mime_type: data.mime
-                }).then(function(imgEl) {
-                    console.log('[مرحله ۲] پاسخ دریافت شد:', imgEl ? imgEl.tagName : 'null');
-
-                    if (imgEl && imgEl.tagName === 'IMG') {
-                        console.log('[نتیجه] تصویر موفق — src:', imgEl.src.substring(0, 80) + '...');
-                        document.getElementById('resultImg').src = imgEl.src;
-                        document.getElementById('result').style.display = 'block';
-                        showToast('تصویر با موفقیت ساخته شد', true);
-                    } else {
-                        console.log('[خطا] خروجی تصویر نبود:', imgEl);
-                        showToast('خروجی تصویر نامعتبر بود');
-                    }
-                }).catch(function(err) {
-                    console.log('[خطا] ارسال به API:', err.message || err);
-                    showToast(err.message || 'خطای ناشناخته');
-                }).finally(function() {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('genBtn').disabled = false;
-                    console.log('[پایان] تولید تصویر تمام شد');
-                });
+            const response = await puter.ai.chat(prompt, {
+                model: 'gemini-2.5-flash-image-preview',
+                vision: [{ type: 'image_url', image_url: { url: combined } }]
             });
-        }
 
-        // ===== توست =====
-        function showToast(msg, ok) {
-            var el = document.getElementById('toast');
-            el.textContent = msg;
-            el.className = 'toast' + (ok ? ' ok' : '');
-            el.classList.add('show');
-            setTimeout(function() { el.classList.remove('show'); }, 4000);
+            const img = extractImage(response);
+            if (img) {
+                resultDataUrl = img;
+                resultImage.src = img;
+                if (resultImage.complete && resultImage.naturalWidth > 0) showState('result');
+                else resultImage.onload = () => showState('result');
+            } else {
+                throw new Error('AI did not return an image. Try with clearer photos.');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast(err.message || 'Something went wrong. Please try again.');
+            showState('upload');
         }
-    </script>
+    });
+
+    function extractImage(resp) {
+        const c = resp?.message?.content;
+        if (typeof c === 'string') {
+            if (c.startsWith('data:image')) return c;
+            const b = c.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=\s]+/);
+            if (b) return b[0].replace(/\s/g, '');
+            const u = c.match(/https?:\/\/[^\s"'<>]+\.(png|jpg|jpeg|webp|gif)/i);
+            if (u) return u[0];
+        }
+        if (Array.isArray(c)) {
+            for (const p of c) {
+                if (typeof p === 'string' && p.startsWith('data:image')) return p;
+                if (p?.type === 'image_url' && p?.image_url?.url) return p.image_url.url;
+                if (p?.type === 'image' && p?.data) return p.data;
+                if (typeof p === 'string') { const b = p.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=\s]+/); if (b) return b[0].replace(/\s/g, ''); }
+            }
+        }
+        if (resp?.message?.image) return resp.message.image;
+        const s = JSON.stringify(resp);
+        const d = s.match(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/);
+        return d ? d[0] : null;
+    }
+
+    // ===================== مدیریت حالت‌ها =====================
+    function showState(state) {
+        if (state === 'upload') {
+            uploadView.classList.remove('is-hidden'); uploadView.classList.add('is-visible');
+            resultView.classList.remove('is-visible'); resultView.classList.add('is-hidden');
+            loadingOverlay.classList.remove('is-visible'); loadingOverlay.classList.add('is-hidden');
+        } else if (state === 'loading') {
+            loadingOverlay.classList.remove('is-hidden');
+            requestAnimationFrame(() => loadingOverlay.classList.add('is-visible'));
+        } else if (state === 'result') {
+            loadingOverlay.classList.remove('is-visible'); loadingOverlay.classList.add('is-hidden');
+            uploadView.classList.remove('is-visible'); uploadView.classList.add('is-hidden');
+            requestAnimationFrame(() => { resultView.classList.remove('is-hidden'); resultView.classList.add('is-visible'); });
+        }
+    }
+
+    // ===================== toast =====================
+    function showToast(msg) {
+        errorText.textContent = msg;
+        errorToast.style.transform = 'translateX(0)';
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => { errorToast.style.transform = 'translateX(140%)'; }, 5500);
+    }
+
+    // ===================== دانلود =====================
+    downloadBtn.addEventListener('click', async () => {
+        if (!resultDataUrl) return;
+        try {
+            if (resultDataUrl.startsWith('data:')) {
+                const a = document.createElement('a'); a.href = resultDataUrl; a.download = 'virtual-tryon.png';
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            } else {
+                const r = await fetch(resultDataUrl); const b = await r.blob(); const u = URL.createObjectURL(b);
+                const a = document.createElement('a'); a.href = u; a.download = 'virtual-tryon.png';
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
+            }
+        } catch { showToast('Download failed. Try right-click to save.'); }
+    });
+
+    backBtn.addEventListener('click', () => showState('upload'));
+    refreshBtn();
+</script>
 </body>
 </html>
