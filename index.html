@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitVision | فیت ویژن</title>
+    <title>FitVision | پرو لباس هوشمند با هوش مصنوعی</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- بارگذاری کتابخانه رسمی Puter.js طبق داکیومنت -->
     <script src="https://js.puter.com/v2/"></script>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -121,14 +122,14 @@
         <div class="blob-shape" style="bottom:-100px;left:-150px;animation-delay:-4s;"></div>
         <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
             <div class="inline-block mb-6 px-5 py-2 rounded-full border border-[var(--border)] bg-surface/50 backdrop-blur-sm text-sm text-[var(--muted)]" style="animation:fadeInUp 0.8s ease forwards">
-                <i class="fas fa-sparkles text-brand ml-2"></i>Made by MmdBerlin and Z.ai.
+                <i class="fas fa-sparkles text-brand ml-2"></i>فناوری Nano Banana در خدمت مد
             </div>
             <h1 class="text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6" style="animation:fadeInUp 0.8s 0.15s ease both">
                 لباس مورد علاقه‌ات رو
                 <br><span class="gradient-text">قبل از خرید بپوش</span>
             </h1>
             <p class="text-lg md:text-xl text-[var(--muted)] max-w-2xl mx-auto mb-10 leading-relaxed" style="animation:fadeInUp 0.8s 0.3s ease both">
-                با فیت ویژن لباس هارو آنلاین پرو کن.
+                با FitVision کافیه عکس خودت و لباس دلخواهت رو آپلود کنی تا هوش مصنوعی لباس رو روی تنه‌ات پرو کنه.
             </p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4" style="animation:fadeInUp 0.8s 0.45s ease both">
                 <a href="#try-section" class="btn-primary px-8 py-4 rounded-2xl text-base flex items-center gap-2">
@@ -171,7 +172,7 @@
                 <div class="anim-scroll bg-surface rounded-2xl p-8 border border-[var(--border)] relative feature-card" style="transition-delay:0.4s">
                     <div class="step-circle mb-6">۳</div>
                     <h3 class="text-xl font-bold mb-3">نتیجه رو ببین</h3>
-                    <p class="text-[var(--muted)] text-sm leading-relaxed">لباس تنت شد!</p>
+                    <p class="text-[var(--muted)] text-sm leading-relaxed">هوش مصنوعی لباس رو روی تنه‌ات پرو می‌کنه.</p>
                 </div>
             </div>
         </div>
@@ -192,7 +193,7 @@
                             <label class="block text-sm font-semibold mb-3 text-[var(--fg)]"><i class="fas fa-user text-brand ml-2"></i>عکس قدی شما</label>
                             <div class="upload-zone flex flex-col items-center justify-center p-6 text-center" id="personZone" onclick="document.getElementById('personInput').click()">
                                 <input type="file" id="personInput" accept="image/*" class="hidden">
-                            <!---   <img id="personPreview" alt="پیش‌نمایش عکس قدی">     dfdfdfdf-->
+                                <img id="personPreview" alt="پیش‌نمایش عکس قدی">
                                 <button class="remove-btn" onclick="event.stopPropagation(); removeImage('person')"><i class="fas fa-times text-xs"></i></button>
                                 <div id="personPlaceholder" class="flex flex-col items-center gap-3">
                                     <div class="w-14 h-14 rounded-2xl bg-surface-2 flex items-center justify-center text-brand text-xl"><i class="fas fa-user-plus"></i></div>
@@ -204,7 +205,7 @@
                             <label class="block text-sm font-semibold mb-3 text-[var(--fg)]"><i class="fas fa-shirt text-brand ml-2"></i>عکس لباس</label>
                             <div class="upload-zone flex flex-col items-center justify-center p-6 text-center" id="garmentZone" onclick="document.getElementById('garmentInput').click()">
                                 <input type="file" id="garmentInput" accept="image/*" class="hidden">
-                              <!--  <img id="garmentPreview" alt="پیش‌نمایش عکس لباس"> -->
+                                <img id="garmentPreview" alt="پیش‌نمایش عکس لباس">
                                 <button class="remove-btn" onclick="event.stopPropagation(); removeImage('garment')"><i class="fas fa-times text-xs"></i></button>
                                 <div id="garmentPlaceholder" class="flex flex-col items-center gap-3">
                                     <div class="w-14 h-14 rounded-2xl bg-surface-2 flex items-center justify-center text-brand text-xl"><i class="fas fa-tshirt"></i></div>
@@ -215,8 +216,9 @@
                     </div>
 
                     <button id="submitBtn" onclick="handleSubmit()" class="btn-primary w-full py-4 rounded-2xl text-base flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed" disabled>
-                        <i class="fas fa-wand-magic-sparkles"></i>پرو لباس با آنلاین
+                        <i class="fas fa-wand-magic-sparkles"></i>پرو لباس با هوش مصنوعی
                     </button>
+                    <!-- یادآوری لاگین طبق معماری User-Pays داکیومنت -->
                     <p class="text-xs text-[var(--muted)] text-center mt-3"><i class="fas fa-info-circle text-brand ml-1"></i>اولین درخواست نیازمند لاگین رایگان در پلتفرم Puter است</p>
                 </div>
 
@@ -292,11 +294,12 @@
                 <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-light to-brand-dark flex items-center justify-center"><i class="fas fa-shirt text-dark text-sm"></i></div>
                 <span class="text-lg font-extrabold">Fit<span class="gradient-text">Vision</span></span>
             </div>
-            <p class="text-xs text-[var(--muted)]">Powered by MmdBerlin & Ai &copy; 2025</p>
+            <p class="text-xs text-[var(--muted)]">Powered by Puter.js & Google Gemini &copy; 2025</p>
         </div>
     </footer>
 
     <script>
+        // پارتیکل‌های هیرو
         (function initParticles() {
             const canvas = document.getElementById('hero-particles');
             const ctx = canvas.getContext('2d');
@@ -322,21 +325,27 @@
             animate();
         })();
 
+        // شمارنده آمار
         function animateCounter(el,target,suffix=''){ let c=0; const s=Math.max(1,Math.floor(target/60)); const i=setInterval(()=>{ c+=s; if(c>=target){c=target;clearInterval(i);} el.textContent=c.toLocaleString('fa-IR')+suffix; },25); }
         let statsCounted=false;
         const heroObs=new IntersectionObserver(e=>{ if(e[0].isIntersecting&&!statsCounted){ statsCounted=true; animateCounter(document.getElementById('stat1'),12847); animateCounter(document.getElementById('stat2'),4320); animateCounter(document.getElementById('stat3'),97,'%'); } },{threshold:0.3});
         heroObs.observe(document.getElementById('hero'));
 
+        // انیمیشن اسکرول
         const scrollObs=new IntersectionObserver(e=>{ e.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('visible'); }); },{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
         document.querySelectorAll('.anim-scroll').forEach(el=>scrollObs.observe(el));
 
+        // هدر
         window.addEventListener('scroll',()=>{ const h=document.getElementById('mainHeader'); if(window.scrollY>80) h.classList.add('header-scrolled'); else h.classList.remove('header-scrolled'); });
 
+        // منوی موبایل
         function toggleMobileMenu(){ document.getElementById('mobileMenu').classList.toggle('open'); }
         function closeMobileMenu(){ document.getElementById('mobileMenu').classList.remove('open'); }
 
+        // اسکرول نرم
         document.querySelectorAll('a[href^="#"]').forEach(a=>{ a.addEventListener('click',e=>{ e.preventDefault(); const t=document.querySelector(a.getAttribute('href')); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); }); });
 
+        // Toast
         function showToast(msg,type='info'){
             const c=document.getElementById('toastContainer'), t=document.createElement('div');
             t.className=`toast ${type}`;
@@ -345,6 +354,7 @@
             setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),400); },4000);
         }
 
+        // آپلود تصاویر
         let personFile=null, garmentFile=null, personImg=null, garmentImg=null;
 
         function setupUploadZone(zoneId,inputId,type){
@@ -390,6 +400,7 @@
             if(state==='success') document.getElementById('resultSuccess').classList.remove('hidden');
         }
 
+        // ساخت کلاژ از دو عکس برای ارسال به API
         function generateCollageBase64(){
             const canvas=document.createElement('canvas'), ctx=canvas.getContext('2d');
             canvas.width=1024; canvas.height=512;
@@ -414,11 +425,13 @@
             return canvas.toDataURL('image/png').split(',')[1];
         }
 
+        // ارسال استاندارد به Nano Banana API طبق داکیومنت Puter
         async function callNanoBananaAPI(base64Collage){
             if(typeof puter==='undefined') throw new Error('کتابخانه Puter.js بارگذاری نشده است. اتصال اینترنت را بررسی کنید.');
 
             const prompt="Generate a photorealistic image of the person on the right wearing the garment on the left. Ensure the garment fits naturally on the person's body, preserving the person's original pose, facial features, and skin tone. Apply the exact fabric, pattern, and style of the garment. High quality, realistic lighting.";
 
+            // فراخوانی مستقیم طبق داکیومنت - پاپ‌آپ لاگین به صورت خودکار توسط خود Puter مدیریت می‌شود
             const resultImage = await puter.ai.txt2img(prompt, {
                 model: "gemini-3.1-flash-image-preview",
                 input_image: base64Collage,
@@ -426,7 +439,7 @@
             });
 
             if(resultImage && resultImage.src) return resultImage.src;
-            throw new Error('پاسخ نامعتبر از سرور');
+            throw new Error('پاسخ نامعتبر از سرور هوش مصنوعی');
         }
 
         // تابع اصلی اجرا
@@ -450,8 +463,9 @@
                 showToast('پرو لباس با موفقیت انجام شد!','success');
             }catch(err){
                 console.error('API Error:',err);
+                // اگر کاربر پاپ‌آپ لاگین را ببندد یا خطای اعتبار رخ دهد
                 if(err.message && err.message.includes('User closed')) {
-                    showToast('برای استفاده از فیت ویژن باید در پاپ‌آپ Puter لاگین کنید', 'error');
+                    showToast('برای استفاده از هوش مصنوعی باید در پاپ‌آپ Puter لاگین کنید', 'error');
                 } else {
                     showToast(err.message || 'خطا در پردازش. دوباره تلاش کنید.','error');
                 }
