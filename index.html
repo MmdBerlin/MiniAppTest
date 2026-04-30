@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitVision | پرو لباس هوشمند با هوش مصنوعی</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- بارگذاری کتابخانه رسمی Puter.js طبق داکیومنت -->
     <script src="https://js.puter.com/v2/"></script>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -39,13 +38,25 @@
         #hero-particles { position:absolute; inset:0; z-index:0; }
         .gradient-text { background:linear-gradient(135deg,var(--accent-light),var(--accent),#8b6914); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 
+        /* استایل‌های باکس آپلود - کاملاً بهینه شده */
         .upload-zone { border:2px dashed var(--border); border-radius:16px; transition:all 0.3s ease; position:relative; overflow:hidden; cursor:pointer; min-height:280px; }
         .upload-zone:hover, .upload-zone.dragover { border-color:var(--accent); background:rgba(201,168,76,0.04); }
         .upload-zone.has-image { border-color:var(--accent); border-style:solid; }
-        .upload-zone img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; border-radius:14px; }
+        
+        .upload-zone img.preview-img { 
+            width:100%; height:100%; object-fit:cover; position:absolute; inset:0; border-radius:14px; 
+            display: none; /* مخفی بودن پیش‌نمایش قبل از انتخاب عکس */
+        }
+        .upload-zone.has-image img.preview-img { 
+            display: block; /* نمایش پیش‌نمایش فقط بعد از انتخاب عکس */
+        }
+
         .upload-zone .remove-btn { position:absolute; top:8px; left:8px; z-index:10; background:rgba(0,0,0,0.75); color:#fff; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; display:none; align-items:center; justify-content:center; transition:background 0.2s; }
-        .upload-zone .remove-btn:hover { background:#c0392b; }
         .upload-zone.has-image .remove-btn { display:flex; }
+        .upload-zone .remove-btn:hover { background:#c0392b; }
+
+        /* مخفی کردن راهنما وقتی عکس انتخاب شد */
+        .upload-zone.has-image .upload-placeholder { display: none !important; }
 
         .loader-ring { width:56px; height:56px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin-slow 0.8s linear infinite; }
         .toast-container { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; }
@@ -189,25 +200,27 @@
             <div class="anim-scroll grid lg:grid-cols-2 gap-8 items-start">
                 <div class="bg-surface rounded-3xl p-6 md:p-8 border border-[var(--border)]">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                        <!-- باکس آپلود شخص -->
                         <div>
                             <label class="block text-sm font-semibold mb-3 text-[var(--fg)]"><i class="fas fa-user text-brand ml-2"></i>عکس قدی شما</label>
                             <div class="upload-zone flex flex-col items-center justify-center p-6 text-center" id="personZone" onclick="document.getElementById('personInput').click()">
                                 <input type="file" id="personInput" accept="image/*" class="hidden">
-                                <img id="personPreview" alt="پیش‌نمایش عکس قدی">
+                                <img id="personPreview" class="preview-img" alt="پیش‌نمایش عکس قدی">
                                 <button class="remove-btn" onclick="event.stopPropagation(); removeImage('person')"><i class="fas fa-times text-xs"></i></button>
-                                <div id="personPlaceholder" class="flex flex-col items-center gap-3">
+                                <div id="personPlaceholder" class="upload-placeholder flex flex-col items-center gap-3">
                                     <div class="w-14 h-14 rounded-2xl bg-surface-2 flex items-center justify-center text-brand text-xl"><i class="fas fa-user-plus"></i></div>
                                     <p class="text-sm text-[var(--muted)]">کلیک یا کشیدن عکس</p>
                                 </div>
                             </div>
                         </div>
+                        <!-- باکس آپلود لباس -->
                         <div>
                             <label class="block text-sm font-semibold mb-3 text-[var(--fg)]"><i class="fas fa-shirt text-brand ml-2"></i>عکس لباس</label>
                             <div class="upload-zone flex flex-col items-center justify-center p-6 text-center" id="garmentZone" onclick="document.getElementById('garmentInput').click()">
                                 <input type="file" id="garmentInput" accept="image/*" class="hidden">
-                                <img id="garmentPreview" alt="پیش‌نمایش عکس لباس">
+                                <img id="garmentPreview" class="preview-img" alt="پیش‌نمایش عکس لباس">
                                 <button class="remove-btn" onclick="event.stopPropagation(); removeImage('garment')"><i class="fas fa-times text-xs"></i></button>
-                                <div id="garmentPlaceholder" class="flex flex-col items-center gap-3">
+                                <div id="garmentPlaceholder" class="upload-placeholder flex flex-col items-center gap-3">
                                     <div class="w-14 h-14 rounded-2xl bg-surface-2 flex items-center justify-center text-brand text-xl"><i class="fas fa-tshirt"></i></div>
                                     <p class="text-sm text-[var(--muted)]">کلیک یا کشیدن عکس</p>
                                 </div>
@@ -218,10 +231,10 @@
                     <button id="submitBtn" onclick="handleSubmit()" class="btn-primary w-full py-4 rounded-2xl text-base flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed" disabled>
                         <i class="fas fa-wand-magic-sparkles"></i>پرو لباس با هوش مصنوعی
                     </button>
-                    <!-- یادآوری لاگین طبق معماری User-Pays داکیومنت -->
                     <p class="text-xs text-[var(--muted)] text-center mt-3"><i class="fas fa-info-circle text-brand ml-1"></i>اولین درخواست نیازمند لاگین رایگان در پلتفرم Puter است</p>
                 </div>
 
+                <!-- پنل نتیجه -->
                 <div class="bg-surface rounded-3xl p-6 md:p-8 border border-[var(--border)] min-h-[400px] flex flex-col items-center justify-center">
                     <div id="resultIdle" class="text-center">
                         <div class="w-20 h-20 rounded-full bg-surface-2 flex items-center justify-center text-3xl text-[var(--border)] mx-auto mb-4"><i class="fas fa-image"></i></div>
@@ -371,16 +384,32 @@
             reader.onload=e=>{
                 const img=new Image();
                 img.onload=()=>{
-                    if(type==='person'){personFile=file;personImg=img;document.getElementById('personPreview').src=e.target.result;document.getElementById('personZone').classList.add('has-image');document.getElementById('personPlaceholder').style.display='none';}
-                    else{garmentFile=file;garmentImg=img;document.getElementById('garmentPreview').src=e.target.result;document.getElementById('garmentZone').classList.add('has-image');document.getElementById('garmentPlaceholder').style.display='none';}
+                    if(type==='person'){
+                        personFile=file; personImg=img; 
+                        document.getElementById('personPreview').src=e.target.result;
+                        document.getElementById('personZone').classList.add('has-image'); 
+                    } else {
+                        garmentFile=file; garmentImg=img; 
+                        document.getElementById('garmentPreview').src=e.target.result;
+                        document.getElementById('garmentZone').classList.add('has-image');
+                    }
                     updateSubmitBtn();
                 };img.src=e.target.result;
             };reader.readAsDataURL(file);
         }
 
         function removeImage(type){
-            if(type==='person'){personFile=null;personImg=null;document.getElementById('personPreview').src='';document.getElementById('personZone').classList.remove('has-image');document.getElementById('personPlaceholder').style.display='flex';document.getElementById('personInput').value='';}
-            else{garmentFile=null;garmentImg=null;document.getElementById('garmentPreview').src='';document.getElementById('garmentZone').classList.remove('has-image');document.getElementById('garmentPlaceholder').style.display='flex';document.getElementById('garmentInput').value='';}
+            if(type==='person'){
+                personFile=null; personImg=null; 
+                document.getElementById('personPreview').src='';
+                document.getElementById('personZone').classList.remove('has-image');
+                document.getElementById('personInput').value='';
+            } else {
+                garmentFile=null; garmentImg=null; 
+                document.getElementById('garmentPreview').src='';
+                document.getElementById('garmentZone').classList.remove('has-image');
+                document.getElementById('garmentInput').value='';
+            }
             updateSubmitBtn();
         }
 
@@ -400,7 +429,6 @@
             if(state==='success') document.getElementById('resultSuccess').classList.remove('hidden');
         }
 
-        // ساخت کلاژ از دو عکس برای ارسال به API
         function generateCollageBase64(){
             const canvas=document.createElement('canvas'), ctx=canvas.getContext('2d');
             canvas.width=1024; canvas.height=512;
@@ -425,13 +453,11 @@
             return canvas.toDataURL('image/png').split(',')[1];
         }
 
-        // ارسال استاندارد به Nano Banana API طبق داکیومنت Puter
         async function callNanoBananaAPI(base64Collage){
-            if(typeof puter==='undefined') throw new Error('کتابخانه Puter.js بارگذاری نشده است. اتصال اینترنت را بررسی کنید.');
+            if(typeof puter==='undefined') throw new Error('کتابخانه Puter.js بارگذاری نشده است');
 
             const prompt="Generate a photorealistic image of the person on the right wearing the garment on the left. Ensure the garment fits naturally on the person's body, preserving the person's original pose, facial features, and skin tone. Apply the exact fabric, pattern, and style of the garment. High quality, realistic lighting.";
 
-            // فراخوانی مستقیم طبق داکیومنت - پاپ‌آپ لاگین به صورت خودکار توسط خود Puter مدیریت می‌شود
             const resultImage = await puter.ai.txt2img(prompt, {
                 model: "gemini-3.1-flash-image-preview",
                 input_image: base64Collage,
@@ -439,10 +465,9 @@
             });
 
             if(resultImage && resultImage.src) return resultImage.src;
-            throw new Error('پاسخ نامعتبر از سرور هوش مصنوعی');
+            throw new Error('پاسخ نامعتبر از سرور');
         }
 
-        // تابع اصلی اجرا
         async function handleSubmit(){
             if(!personFile||!garmentFile){showToast('هر دو تصویر را آپلود کنید','error');return;}
             showResultState('loading');
@@ -463,9 +488,8 @@
                 showToast('پرو لباس با موفقیت انجام شد!','success');
             }catch(err){
                 console.error('API Error:',err);
-                // اگر کاربر پاپ‌آپ لاگین را ببندد یا خطای اعتبار رخ دهد
                 if(err.message && err.message.includes('User closed')) {
-                    showToast('برای استفاده از هوش مصنوعی باید در پاپ‌آپ Puter لاگین کنید', 'error');
+                    showToast('برای استفاده از فیت ویژن باید در پاپ‌آپ Puter لاگین کنید', 'error');
                 } else {
                     showToast(err.message || 'خطا در پردازش. دوباره تلاش کنید.','error');
                 }
