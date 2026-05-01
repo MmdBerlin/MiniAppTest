@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitVision | پرو لباس هوشمند با هوش مصنوعی</title>
+    <title>FitVision | فیت ویژن</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://js.puter.com/v2/"></script>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -38,24 +38,23 @@
         #hero-particles { position:absolute; inset:0; z-index:0; }
         .gradient-text { background:linear-gradient(135deg,var(--accent-light),var(--accent),#8b6914); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 
-        /* استایل‌های باکس آپلود - کاملاً بهینه شده */
         .upload-zone { border:2px dashed var(--border); border-radius:16px; transition:all 0.3s ease; position:relative; overflow:hidden; cursor:pointer; min-height:280px; }
         .upload-zone:hover, .upload-zone.dragover { border-color:var(--accent); background:rgba(201,168,76,0.04); }
         .upload-zone.has-image { border-color:var(--accent); border-style:solid; }
         
         .upload-zone img.preview-img { 
             width:100%; height:100%; object-fit:cover; position:absolute; inset:0; border-radius:14px; 
-            display: none; /* مخفی بودن پیش‌نمایش قبل از انتخاب عکس */
+            display: none;
         }
         .upload-zone.has-image img.preview-img { 
-            display: block; /* نمایش پیش‌نمایش فقط بعد از انتخاب عکس */
+            display: block;
         }
 
         .upload-zone .remove-btn { position:absolute; top:8px; left:8px; z-index:10; background:rgba(0,0,0,0.75); color:#fff; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; display:none; align-items:center; justify-content:center; transition:background 0.2s; }
         .upload-zone.has-image .remove-btn { display:flex; }
         .upload-zone .remove-btn:hover { background:#c0392b; }
 
-        /* مخفی کردن راهنما وقتی عکس انتخاب شد */
+        
         .upload-zone.has-image .upload-placeholder { display: none !important; }
 
         .loader-ring { width:56px; height:56px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin-slow 0.8s linear infinite; }
@@ -133,14 +132,14 @@
         <div class="blob-shape" style="bottom:-100px;left:-150px;animation-delay:-4s;"></div>
         <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
             <div class="inline-block mb-6 px-5 py-2 rounded-full border border-[var(--border)] bg-surface/50 backdrop-blur-sm text-sm text-[var(--muted)]" style="animation:fadeInUp 0.8s ease forwards">
-                <i class="fas fa-sparkles text-brand ml-2"></i>فناوری Nano Banana در خدمت مد
+                <i class="fas fa-sparkles text-brand ml-2"></i>Its Just a Preview.
             </div>
             <h1 class="text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6" style="animation:fadeInUp 0.8s 0.15s ease both">
                 لباس مورد علاقه‌ات رو
                 <br><span class="gradient-text">قبل از خرید بپوش</span>
             </h1>
             <p class="text-lg md:text-xl text-[var(--muted)] max-w-2xl mx-auto mb-10 leading-relaxed" style="animation:fadeInUp 0.8s 0.3s ease both">
-                با FitVision کافیه عکس خودت و لباس دلخواهت رو آپلود کنی تا هوش مصنوعی لباس رو روی تنه‌ات پرو کنه.
+                با فیت ویژن آنلاین پرو کن.
             </p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4" style="animation:fadeInUp 0.8s 0.45s ease both">
                 <a href="#try-section" class="btn-primary px-8 py-4 rounded-2xl text-base flex items-center gap-2">
@@ -167,13 +166,13 @@
         <div class="max-w-6xl mx-auto px-6">
             <div class="text-center mb-16 anim-scroll">
                 <span class="text-brand text-sm font-semibold tracking-wider">مراحل ساده</span>
-                <h2 class="text-3xl md:text-5xl font-black mt-3">چطور کار می‌کنه؟</h2>
+                <h2 class="text-3xl md:text-5xl font-black mt-3">چجوری کار می‌کنه؟</h2>
             </div>
             <div class="grid md:grid-cols-3 gap-8">
                 <div class="anim-scroll bg-surface rounded-2xl p-8 border border-[var(--border)] relative feature-card" style="transition-delay:0.1s">
                     <div class="step-circle mb-6">۱</div>
                     <h3 class="text-xl font-bold mb-3">عکس خودت رو آپلود کن</h3>
-                    <p class="text-[var(--muted)] text-sm leading-relaxed">یک عکس تمام‌قد واضح از خودت آپلود کن.</p>
+                    <p class="text-[var(--muted)] text-sm leading-relaxed">یک عکس تمام‌ قد واضح از خودت آپلود کن.</p>
                 </div>
                 <div class="anim-scroll bg-surface rounded-2xl p-8 border border-[var(--border)] relative feature-card" style="transition-delay:0.25s">
                     <div class="step-circle mb-6">۲</div>
@@ -183,7 +182,7 @@
                 <div class="anim-scroll bg-surface rounded-2xl p-8 border border-[var(--border)] relative feature-card" style="transition-delay:0.4s">
                     <div class="step-circle mb-6">۳</div>
                     <h3 class="text-xl font-bold mb-3">نتیجه رو ببین</h3>
-                    <p class="text-[var(--muted)] text-sm leading-relaxed">هوش مصنوعی لباس رو روی تنه‌ات پرو می‌کنه.</p>
+                    <p class="text-[var(--muted)] text-sm leading-relaxed">فیت ویژن لباس رو روی تنه‌ات پرو می‌کنه.</p>
                 </div>
             </div>
         </div>
@@ -193,14 +192,14 @@
         <div class="blob-shape" style="top:50%;right:-200px;animation-delay:-2s;"></div>
         <div class="max-w-6xl mx-auto px-6">
             <div class="text-center mb-16 anim-scroll">
-                <span class="text-brand text-sm font-semibold tracking-wider">پرو لباس مجازی</span>
+                <span class="text-brand text-sm font-semibold tracking-wider">پرو لباس آنلاین</span>
                 <h2 class="text-3xl md:text-5xl font-black mt-3">لباست رو پرو کن</h2>
             </div>
 
             <div class="anim-scroll grid lg:grid-cols-2 gap-8 items-start">
                 <div class="bg-surface rounded-3xl p-6 md:p-8 border border-[var(--border)]">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-                        <!-- باکس آپلود شخص -->
+                        
                         <div>
                             <label class="block text-sm font-semibold mb-3 text-[var(--fg)]"><i class="fas fa-user text-brand ml-2"></i>عکس قدی شما</label>
                             <div class="upload-zone flex flex-col items-center justify-center p-6 text-center" id="personZone" onclick="document.getElementById('personInput').click()">
@@ -213,7 +212,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- باکس آپلود لباس -->
+                        
                         <div>
                             <label class="block text-sm font-semibold mb-3 text-[var(--fg)]"><i class="fas fa-shirt text-brand ml-2"></i>عکس لباس</label>
                             <div class="upload-zone flex flex-col items-center justify-center p-6 text-center" id="garmentZone" onclick="document.getElementById('garmentInput').click()">
@@ -229,12 +228,12 @@
                     </div>
 
                     <button id="submitBtn" onclick="handleSubmit()" class="btn-primary w-full py-4 rounded-2xl text-base flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed" disabled>
-                        <i class="fas fa-wand-magic-sparkles"></i>پرو لباس با هوش مصنوعی
+                        <i class="fas fa-wand-magic-sparkles"></i>پرو لباس آنلاین
                     </button>
                     <p class="text-xs text-[var(--muted)] text-center mt-3"><i class="fas fa-info-circle text-brand ml-1"></i>اولین درخواست نیازمند لاگین رایگان در پلتفرم Puter است</p>
                 </div>
 
-                <!-- پنل نتیجه -->
+                
                 <div class="bg-surface rounded-3xl p-6 md:p-8 border border-[var(--border)] min-h-[400px] flex flex-col items-center justify-center">
                     <div id="resultIdle" class="text-center">
                         <div class="w-20 h-20 rounded-full bg-surface-2 flex items-center justify-center text-3xl text-[var(--border)] mx-auto mb-4"><i class="fas fa-image"></i></div>
@@ -307,7 +306,7 @@
                 <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-light to-brand-dark flex items-center justify-center"><i class="fas fa-shirt text-dark text-sm"></i></div>
                 <span class="text-lg font-extrabold">Fit<span class="gradient-text">Vision</span></span>
             </div>
-            <p class="text-xs text-[var(--muted)]">Powered by Puter.js & Google Gemini &copy; 2025</p>
+            <p class="text-xs text-[var(--muted)]">Powered by MmdBerlin and Z.ai &copy; 2025</p>
         </div>
     </footer>
 
