@@ -458,7 +458,7 @@
             const prompt="Generate a photorealistic image of the person on the right wearing the garment on the left. Ensure the garment fits naturally on the person's body, preserving the person's original pose, facial features, and skin tone. Apply the exact fabric, pattern, and style of the garment. High quality, realistic lighting.";
 
             const resultImage = await puter.ai.txt2img(prompt, {
-                model: "gemini-3.1-flash-image-preview",
+                model: "gemini-3-pro-image-preview",
                 input_image: base64Collage,
                 input_image_mime_type: "image/png"
             });
